@@ -1,6 +1,6 @@
 # Arhitectura lui Petru și planul scheletului
 
-> Stare: **propunere**. Scheletul nu se construiește până nu hotărăște autorul pe acest document. Întrebările deschise sunt la § 9.
+> Stare: **aprobată de autor la 19.11.2026**, cu propunerile de la § 9. Scheletul se construiește după planul de la § 8.
 
 ## 1. Pe scurt
 
@@ -106,14 +106,14 @@ Fiecare pas e o sesiune separată, cu PR propriu.
 | S6 | Drumul actului și registratura 0.1, poarta de publicare (fără anonimizarea automată) | un act înregistrat, repartizat, emis, cu urma în jurnal |
 | S7 | Imaginea Docker și ghidul de instalare în Azure pentru firma de IT a primăriei | imaginea pornește local cu `docker run` |
 
-La pasul S4 autorul își face singur conturile Netlify și Neon. Pașii exacți îi primește atunci; adresa bazei se pune direct în setările Netlify, niciodată în conversație sau în depozit.
+Conturile Netlify (site-ul `petru-test`) și Neon (proiectul `petra`, Frankfurt) sunt făcute de autor. La pasul S4 primește pașii pentru a doua ramură Neon și pentru adresele pe contexte; adresa bazei se pune direct în setările Netlify, niciodată în conversație sau în depozit.
 
-## 9. Întrebări pentru autor
+## 9. Hotărârile autorului (19.11.2026)
 
-1. **Accesul la bază**: Drizzle (propunerea mea: SQL vizibil, ușor) sau Prisma (mai cunoscut, dar mai greu și cu motor separat)?
-2. **Bazele Neon**: două ramuri, `previzualizare` și `test` (propunerea mea), sau una singură pentru tot, cum era în cerința inițială? Cu una singură, fiecare PR șterge ce au încercat colegii pe site-ul de test.
-3. **Observațiile din „Ce lipsește?”**: într-un tabel pe care refacerea nu îl atinge, citit de autor din aplicație (propunerea mea), sau ca tichete GitHub, cu un token pus în setările Netlify?
-4. **Ecranele**: CSS propriu, simplu, sau Tailwind cu o bibliotecă de componente?
-5. **Producția**: Azure Container Apps (propunerea mea) sau Azure App Service pentru containere? Hotărăște, în final, firma de IT a primăriei.
-6. **Imaginea pentru producție**: o construiește firma de IT a primăriei din codul sursă predat, sau o publică autorul la fiecare versiune, iar administratorul o preia?
-7. **Numele afișat**: „Petru” singur sau „Petru — [numele instituției]”, din setare?
+1. **Accesul la bază**: Drizzle, cu migrări SQL numerotate.
+2. **Bazele Neon**: două ramuri în proiectul Neon: ramura principală pentru site-ul de test și ramura `previzualizare` pentru PR-uri. În Netlify, `DATABASE_URL` are valori diferite pe contexte (se reglează la pasul S4).
+3. **Observațiile din „Ce lipsește?”**: într-un tabel pe care refacerea bazei nu îl atinge, citit de autor din aplicație.
+4. **Ecranele**: CSS propriu, simplu (module CSS), fără bibliotecă de componente.
+5. **Producția**: Azure Container Apps, dacă firma de IT a primăriei nu are motive pentru altceva.
+6. **Imaginea pentru producție**: o construiește firma de IT a primăriei din codul sursă predat, cu `Dockerfile`-ul din depozit. Autorul nu publică nimic în producție.
+7. **Numele afișat**: „Petru — [numele instituției]”, cu numele luat din setarea instituției.
