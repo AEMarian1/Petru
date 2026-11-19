@@ -121,11 +121,24 @@ Dicționarul se verifică automat la fiecare PR: un tabel nou fără fișă opre
 - **Datele reale** (cadastru, roluri fiscale, contracte) se încarcă numai în producție, pe serverul primăriei, de colegi.
 - **Datele publice fără caracter personal** pot fi folosite la proiectare, după excepția din `CLAUDE.md`: zonele PUG, străzile, rețelele publice, limitele domeniului public.
 
-## 10. Întrebări pentru autor
+## 10. Ce există deja în primărie (de la autor)
+
+| Ce | Starea | Ce înseamnă pentru Petru |
+|---|---|---|
+| **Programele SOBIS** | folosite azi pentru o mare parte din activitate | Petru nu le înlocuiește dintr-odată. Le citește datele (exporturi sau interfețe, cât permite contractul cu furnizorul) și se leagă de ele prin chei stabile: rolul fiscal, numărul cadastral, codul persoanei. Înlocuirea unui modul SOBIS se hotărăște separat, pe module, numai când Petru face același lucru cel puțin la fel de bine. |
+| **GIS-ul dezvoltat intern** | există, cu destule date | Nu pornim de la zero. Datele lui sunt importate în PostGIS, cu straturile și cheile păstrate, sau, dacă e deja pe PostGIS, harta lui Petru le citește direct. Tehnologia hotărăște calea. |
+| **Inventarul** | există | E punctul de pornire al registrului bunurilor. Se importă, nu se reintroduce. |
+| **SCIM** | există ca documente | Procedurile se încarcă în Petru pe versiuni, cu cine le-a aprobat și când. Registrul riscurilor se construiește din ele. |
+
+**Regula, pentru toate:** datele reale din aceste sisteme se importă numai în producție, pe serverul primăriei, de colegi. La dezvoltare se lucrează pe **structura** lor (câmpuri, formate, straturi), descrisă de colegi sau dintr-un exemplu anonimizat, aprobat după procedura primăriei.
+
+## 11. Întrebări pentru autor
 
 1. În lista ta apare „harta sincronizată cu urbanismul, taxele, cadastrul, salubrizarea, **autor**”. Ce ai vrut să scrii la „autor”: „auto” (vehiculele, impozitul auto), „agricol” sau altceva?
-2. **Cadastrul:** primăria are acces la datele de cadastru ale comunei, de pildă un export ANCPI prin protocol sau un program de cadastru local? În ce format sunt?
-3. **PUG-ul:** există digital (shapefile, DWG, PDF) sau numai pe hârtie?
-4. **Taxele:** rămân o vreme în programul existent sau Petru le preia de la început? Programul existent scoate exporturi pe număr de rol?
-5. **Salubrizarea:** e taxă specială încasată de primărie sau contract direct între cetățean și serviciu?
-6. **Ordinea:** propun ca registrul bunurilor și harta să intre la versiunea 0.3, cu imobilul ca piesă centrală. Taxele intră din date la 0.4, după ce imobilele și persoanele sunt în bază. Bună așa?
+2. **SOBIS:** ce module folosiți (taxe, registru agricol, contabilitate, registratură, salarii)? Contractul cu furnizorul permite exporturi sau acces la date? Cine din primărie are drepturi de export?
+3. **GIS-ul intern:** pe ce e construit (QGIS cu fișiere shapefile sau GeoPackage, PostGIS, alt program)? Ce straturi are (parcele, clădiri, străzi, PUG, rețele)? În ce sistem de coordonate (Stereo 70)?
+4. **Inventarul:** în ce format e (Excel, anexa la HCL, în SOBIS)? E legat de numerele cadastrale?
+5. **Cadastrul:** datele ANCPI ale comunei sunt deja în GIS-ul intern sau vin separat?
+6. **PUG-ul:** e digitizat în GIS-ul intern?
+7. **Salubrizarea:** e taxă specială încasată de primărie sau contract direct între cetățean și serviciu?
+8. **Ordinea:** propun ca registrul bunurilor și harta să intre la versiunea 0.3, cu imobilul ca piesă centrală și cu importul din GIS-ul intern și din inventar. Taxele intră din date la 0.4, legate de SOBIS. Bună așa?
