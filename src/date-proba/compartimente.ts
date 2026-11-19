@@ -23,6 +23,7 @@ export const COMPARTIMENTE: Compartiment[] = [
   { cheie: "taxe", nume: "Taxe și impozite (persoane fizice și juridice)", ce: "Declarații fiscale, certificate fiscale, scutiri, restituiri", program: PROGRAM_OBISNUIT, interior: "106" },
   { cheie: "casierie", nume: "Casieria", ce: "Încasarea taxelor și impozitelor, chitanțe", program: PROGRAM_OBISNUIT, interior: "107" },
   { cheie: "executari", nume: "Executări silite", ce: "Recuperarea creanțelor restante: somații, titluri executorii, popriri", program: PROGRAM_OBISNUIT, interior: "108" },
+  { cheie: "resurse-umane", nume: "Resurse umane", ce: "Personalul, statul de funcții, concursurile, evaluarea, dosarele profesionale", program: PROGRAM_OBISNUIT, interior: "120" },
   { cheie: "contabilitate", nume: "Contabilitatea", ce: "Bugetul, execuția bugetară, plățile, situațiile financiare", program: PROGRAM_OBISNUIT, interior: "109" },
   { cheie: "asistenta", nume: "Asistența socială", ce: "Beneficii sociale, alocații, ajutor de încălzire, handicap, venitul minim de incluziune", program: PROGRAM_OBISNUIT, interior: "110" },
   { cheie: "stare-civila", nume: "Starea civilă", ce: "Certificate de naștere, căsătorie, deces, transcrieri, divorț administrativ", program: PROGRAM_OBISNUIT, interior: "111" },
