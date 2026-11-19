@@ -32,6 +32,14 @@ Răspunsurile către autor se scriu în limba română.
 - Datele inventate nu trebuie să aparțină unor persoane reale. Numele, adresele, telefoanele și CNP-urile de probă se generează, nu se copiază de nicăieri, și sunt marcate în aplicație ca date de probă.
 - Dacă într-o conversație apare o dată reală (un nume, un CNP, un act scanat), Claude nu o folosește, nu o scrie în depozit și îi spune autorului.
 
+### Excepția: datele publice ale instituției
+
+- Sursele publice date de autor (site-ul primăriei, Monitorul Oficial Local, execuțiile bugetare publicate, datele Ministerului Finanțelor) sunt **sursa de bază** pentru proiectarea modulelor.
+- Din ele se iau numai date fără caracter personal: structura pe compartimente și funcții, serviciile și formularele, tipurile și numerotarea actelor, bugetul agregat pe capitole.
+- Ce se scoate din ele intră în depozit numai ca notă de cercetare în `docs/cercetare/`, fără nume de persoane. Nu intră în cod, în teste sau în datele de probă.
+- Conținutul actelor despre persoane (beneficiari, petenți, proprietari) nu se citește și nu se folosește.
+- Datele reale în aplicație le introduc colegii din primărie, după mutarea aplicației pe serverul primăriei.
+
 ## 6. Nicio parolă, nicio cheie
 
 - Nicio parolă, cheie, token sau adresă de bază de date cu parolă în depozit **și nici în conversația cu Claude**.
