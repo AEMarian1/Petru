@@ -125,20 +125,23 @@ Dicționarul se verifică automat la fiecare PR: un tabel nou fără fișă opre
 
 | Ce | Starea | Ce înseamnă pentru Petru |
 |---|---|---|
-| **Programele SOBIS** | folosite azi pentru o mare parte din activitate | Petru nu le înlocuiește dintr-odată. Le citește datele (exporturi sau interfețe, cât permite contractul cu furnizorul) și se leagă de ele prin chei stabile: rolul fiscal, numărul cadastral, codul persoanei. Înlocuirea unui modul SOBIS se hotărăște separat, pe module, numai când Petru face același lucru cel puțin la fel de bine. |
-| **GIS-ul dezvoltat intern** | există, cu destule date | Nu pornim de la zero. Datele lui sunt importate în PostGIS, cu straturile și cheile păstrate, sau, dacă e deja pe PostGIS, harta lui Petru le citește direct. Tehnologia hotărăște calea. |
-| **Inventarul** | există | E punctul de pornire al registrului bunurilor. Se importă, nu se reintroduce. |
+| **Programele SOBIS** | folosite azi pentru o mare parte din activitate; contractul permite exportul datelor și integrarea | Petru nu le înlocuiește dintr-odată. Le citește datele prin export și integrare, cum permite contractul și se leagă de ele prin chei stabile: rolul fiscal, numărul cadastral, codul persoanei. Înlocuirea unui modul SOBIS se hotărăște separat, pe module, numai când Petru face același lucru cel puțin la fel de bine. |
+| **GIS-ul intern (QGIS)** | proiect QGIS făcut de autor pe laptopul de serviciu al primăriei, cu date primite de primărie, care au rămas numai acolo | E al primăriei, ca datele lui, și rămâne al primăriei. Nu intră în depozit, în Claude sau pe calculatoarele autorului. În producție, colegii îi importă straturile în PostGIS (din fișierele QGIS, cu instrumentele standard GDAL/ogr2ogr), cu straturile și cheile păstrate. La dezvoltare se folosește numai **lista straturilor și a câmpurilor**, descrisă în cuvinte, fără date. |
+| **Inventarul** | există, tot pe laptopul de serviciu | Aceeași regulă: rămâne la primărie și se importă în producție de colegi. La dezvoltare, numai coloanele lui. |
 | **SCIM** | există ca documente | Procedurile se încarcă în Petru pe versiuni, cu cine le-a aprobat și când. Registrul riscurilor se construiește din ele. |
 
 **Regula, pentru toate:** datele reale din aceste sisteme se importă numai în producție, pe serverul primăriei, de colegi. La dezvoltare se lucrează pe **structura** lor (câmpuri, formate, straturi), descrisă de colegi sau dintr-un exemplu anonimizat, aprobat după procedura primăriei.
 
-## 11. Întrebări pentru autor
+## 11. Răspunsurile autorului (19.11.2026)
 
-1. În lista ta apare „harta sincronizată cu urbanismul, taxele, cadastrul, salubrizarea, **autor**”. Ce ai vrut să scrii la „autor”: „auto” (vehiculele, impozitul auto), „agricol” sau altceva?
-2. **SOBIS:** ce module folosiți (taxe, registru agricol, contabilitate, registratură, salarii)? Contractul cu furnizorul permite exporturi sau acces la date? Cine din primărie are drepturi de export?
-3. **GIS-ul intern:** pe ce e construit (QGIS cu fișiere shapefile sau GeoPackage, PostGIS, alt program)? Ce straturi are (parcele, clădiri, străzi, PUG, rețele)? În ce sistem de coordonate (Stereo 70)?
-4. **Inventarul:** în ce format e (Excel, anexa la HCL, în SOBIS)? E legat de numerele cadastrale?
-5. **Cadastrul:** datele ANCPI ale comunei sunt deja în GIS-ul intern sau vin separat?
-6. **PUG-ul:** e digitizat în GIS-ul intern?
-7. **Salubrizarea:** e taxă specială încasată de primărie sau contract direct între cetățean și serviciu?
-8. **Ordinea:** propun ca registrul bunurilor și harta să intre la versiunea 0.3, cu imobilul ca piesă centrală și cu importul din GIS-ul intern și din inventar. Taxele intră din date la 0.4, legate de SOBIS. Bună așa?
+- „Autor” din lista hărții a fost o greșeală de tastare. Harta se leagă de urbanism, taxe și impozite, cadastru și salubrizare.
+- **Salubrizarea e taxă specială.** Declarația de salubritate ajunge la Taxe și impozite, care calculează și încasează taxa. Serviciul de salubrizare primește din Petru numai ce îi trebuie pentru colectare (imobilul, numărul de persoane, recipientele), pe temeiul HCL-ului care instituie taxa.
+- **SOBIS:** contractul permite exportul datelor și integrarea.
+- **GIS-ul intern și inventarul:** sunt pe laptopul de serviciu al primăriei și rămân acolo. Se importă numai în producție.
+
+## 12. Întrebări rămase
+
+1. **SOBIS:** ce module folosiți (taxe, registrul agricol, contabilitate, registratură, salarii)? Cine poate cere furnizorului documentația de integrare?
+2. **Straturile din QGIS:** numele straturilor și câmpurile lor, în cuvinte, fără date. De pildă: „parcele: nr. cadastral, nr. CF, suprafață, categorie”.
+3. **Coloanele inventarului**, în cuvinte, fără date.
+4. **Ordinea:** propun ca registrul bunurilor și harta să intre la versiunea 0.3, cu imobilul ca piesă centrală și cu importul din QGIS și din inventar. Taxele intră din date la 0.4, legate de SOBIS. Bună așa?
