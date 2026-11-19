@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { bigserial, boolean, date, integer, jsonb, pgSchema, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
+import { bigserial, boolean, date, integer, jsonb, pgSchema, primaryKey, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
 
 /**
  * Schema „petru”: datele aplicației. În mediile de probă se șterge și se reface la fiecare publicare.
@@ -13,6 +13,7 @@ const creatLa = () => timestamp("creat_la", { withTimezone: true }).notNull().de
 export const stareDocument = petru.enum("stare_document", [
   "inregistrat", "repartizat", "in_lucru", "la_semnat", "emis", "publicat", "arhivat",
 ]);
+export const tipEntitate = petru.enum("tip_entitate", ["primarie", "serviciu_public", "alta"]);
 export const tipPersoana = petru.enum("tip_persoana", ["fizica", "juridica", "institutie"]);
 export const directieDocument = petru.enum("directie_document", ["intrare", "iesire", "intern"]);
 
@@ -26,8 +27,22 @@ export const institutie = petru.table("institutie", {
   creatLa: creatLa(),
 });
 
+/**
+ * Entitățile care lucrează în Petru, fiecare cu datele ei: primăria și, de pildă, serviciul de
+ * salubrizare (formă juridică distinctă). Fiecare entitate e operator pentru datele ei.
+ */
+export const entitati = petru.table("entitati", {
+  id: id(),
+  cheie: text("cheie").notNull().unique(),
+  nume: text("nume").notNull(),
+  tip: tipEntitate("tip").notNull(),
+  cif: text("cif"),
+  creatLa: creatLa(),
+});
+
 export const compartimente = petru.table("compartimente", {
   id: id(),
+  entitateId: uuid("entitate_id").references(() => entitati.id),
   cheie: text("cheie").notNull().unique(),
   nume: text("nume").notNull(),
   atributii: text("atributii"),
@@ -55,14 +70,60 @@ export const persoane = petru.table("persoane", {
 
 export const utilizatori = petru.table("utilizatori", {
   id: id(),
+  entitateId: uuid("entitate_id").references(() => entitati.id),
   numeAfisat: text("nume_afisat").notNull(),
-  rol: text("rol").notNull(),
+  email: text("email").unique(),
+  /** Funcția (postul), nu persoana: „inspector”, „referent”. Rolurile dau drepturile. */
+  functie: text("functie"),
+  /** Vechiul câmp de rol; drepturile vin din utilizator_roluri. */
+  rol: text("rol"),
   compartimentId: uuid("compartiment_id").references(() => compartimente.id),
   /** Identificatorul din Entra ID (producție). Gol la conturile locale de probă. */
   entraOid: text("entra_oid").unique(),
   contLocal: boolean("cont_local").notNull().default(false),
+  activ: boolean("activ").notNull().default(true),
+  ultimaIntrare: timestamp("ultima_intrare", { withTimezone: true }),
   creatLa: creatLa(),
 });
+
+/** Rolurile: seturi de drepturi, pe funcții. Cele predefinite vin din cod; administratorul poate adăuga altele. */
+export const roluri = petru.table(
+  "roluri",
+  {
+    id: id(),
+    entitateId: uuid("entitate_id").notNull().references(() => entitati.id),
+    cheie: text("cheie").notNull(),
+    nume: text("nume").notNull(),
+    descriere: text("descriere"),
+    predefinit: boolean("predefinit").notNull().default(false),
+    creatLa: creatLa(),
+  },
+  (t) => [unique("roluri_entitate_cheie").on(t.entitateId, t.cheie)],
+);
+
+/** Drepturile fiecărui rol. Lista drepturilor posibile e în cod (src/domeniu/permisiuni.ts). */
+export const rolPermisiuni = petru.table(
+  "rol_permisiuni",
+  {
+    rolId: uuid("rol_id").notNull().references(() => roluri.id, { onDelete: "cascade" }),
+    permisiune: text("permisiune").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.rolId, t.permisiune] })],
+);
+
+/** Rolurile unui utilizator; un rol poate fi limitat la un compartiment. */
+export const utilizatorRoluri = petru.table(
+  "utilizator_roluri",
+  {
+    id: id(),
+    utilizatorId: uuid("utilizator_id").notNull().references(() => utilizatori.id, { onDelete: "cascade" }),
+    rolId: uuid("rol_id").notNull().references(() => roluri.id, { onDelete: "cascade" }),
+    compartimentId: uuid("compartiment_id").references(() => compartimente.id),
+    acordatDe: uuid("acordat_de").references(() => utilizatori.id),
+    creatLa: creatLa(),
+  },
+  (t) => [unique("utilizator_rol_compartiment").on(t.utilizatorId, t.rolId, t.compartimentId)],
+);
 
 /** Registrul de intrare-ieșire: un singur drum al actului pentru toate documentele. */
 export const documente = petru.table(

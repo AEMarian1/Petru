@@ -1,21 +1,20 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { DOCUMENTE } from "@/date-proba/documente";
 import { ETICHETE } from "@/domeniu/drumul-actului";
-import { rolulCurent } from "@/componente/sesiune";
+import { cere } from "@/autentificare/utilizator";
 import { dataRo } from "@/componente/format";
 
 const AZI = "2026-11-19"; // data fixă a datelor de probă
 
 export default async function Panou() {
-  const rol = await rolulCurent();
-  if (!rol) redirect("/");
+  const u = await cere();
   const deschise = DOCUMENTE.filter((d) => d.stare !== "arhivat" && d.stare !== "emis");
   const depasite = deschise.filter((d) => d.termen < AZI);
   const laSemnat = DOCUMENTE.filter((d) => d.stare === "la_semnat");
   return (
     <>
-      <h1>Panou — {rol.nume}</h1>
+      <h1>Panou — {u.numeAfisat}</h1>
+      <p className="slab">{u.entitateNume} · Roluri: {u.roluri.map((r) => (r.compartiment ? `${r.nume} (${r.compartiment})` : r.nume)).join(", ") || "niciunul"}</p>
       <div className="grila">
         <div className="card"><h3>{deschise.length}</h3><p className="slab">documente în lucru</p></div>
         <div className="card"><h3>{depasite.length}</h3><p className="slab">termene depășite</p></div>

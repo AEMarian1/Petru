@@ -1,16 +1,19 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { esteRol } from "@/domeniu/roluri";
+import { and, eq } from "drizzle-orm";
 import { esteMediuDeProba } from "@/domeniu/mediu";
-import { COOKIE_ROL } from "@/componente/sesiune";
+import { deschideSesiunea } from "@/autentificare/sesiune";
+import { db } from "@/baza/db";
+import { jurnal, utilizatori } from "@/baza/schema";
 
-export function GET(cerere: NextRequest) {
-  // Conturile de probă sunt oprite din cod în producție.
-  if (!esteMediuDeProba()) {
-    return new NextResponse("Conturile de probă nu există în producție.", { status: 403 });
-  }
-  const rol = cerere.nextUrl.searchParams.get("rol") ?? undefined;
-  if (!esteRol(rol)) return NextResponse.redirect(new URL("/", cerere.url));
-  const raspuns = NextResponse.redirect(new URL("/panou", cerere.url));
-  raspuns.cookies.set(COOKIE_ROL, rol, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 8 });
-  return raspuns;
+/** Intrarea cu un cont de probă. Oprită din cod în producție; numai pentru conturile locale. */
+export async function GET(cerere: NextRequest) {
+  if (!esteMediuDeProba()) return new NextResponse("Conturile de probă nu există în producție.", { status: 403 });
+  const baza = db();
+  const id = cerere.nextUrl.searchParams.get("utilizator") ?? "";
+  if (!baza || !/^[0-9a-f-]{36}$/.test(id)) return NextResponse.redirect(new URL("/", cerere.url));
+  const [u] = await baza.select().from(utilizatori).where(and(eq(utilizatori.id, id), eq(utilizatori.contLocal, true), eq(utilizatori.activ, true)));
+  if (!u) return NextResponse.redirect(new URL("/", cerere.url));
+  await baza.insert(jurnal).values({ utilizatorId: u.id, actiune: "a intrat (cont de probă)", entitate: "utilizator", entitateId: u.id });
+  await deschideSesiunea(u.id, "proba");
+  return NextResponse.redirect(new URL("/panou", cerere.url));
 }

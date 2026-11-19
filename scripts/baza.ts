@@ -12,6 +12,7 @@ import { adresaBazei, bazaDeDate, creeazaPool } from "../src/baza/conexiune";
 import * as s from "../src/baza/schema";
 import { persoaneDeProba, TIPURI_DOCUMENTE, aleator } from "../src/baza/date-proba";
 import { COMPARTIMENTE } from "../src/date-proba/compartimente";
+import { ROLURI_PREDEFINITE } from "../src/domeniu/roluri-predefinite";
 
 const LACAT_REFACERE = 7_202_611;
 const MIGRARI = { migrationsFolder: "migrari", migrationsSchema: "petru_migrari", migrationsTable: "migrari" };
@@ -78,21 +79,69 @@ async function incarcaDateDeProba(db: Db) {
     judet: "Județul Exemplu",
   });
 
+  // Entitățile: primăria și serviciul de salubrizare (formă juridică distinctă), fiecare cu datele ei.
+  const [primaria, salubrizare] = await db
+    .insert(s.entitati)
+    .values([
+      { cheie: "primaria", nume: process.env.PETRU_INSTITUTIE?.trim() || "Primăria Comunei Exemplu", tip: "primarie" },
+      { cheie: "salubrizare", nume: "Serviciul de salubrizare (probă)", tip: "serviciu_public" },
+    ])
+    .returning({ id: s.entitati.id });
+
   const comp = await db
     .insert(s.compartimente)
-    .values(COMPARTIMENTE.map((c) => ({ cheie: c.cheie, nume: c.nume, atributii: c.ce, program: c.program, interior: c.interior })))
+    .values([
+      ...COMPARTIMENTE.map((c) => ({ entitateId: primaria!.id, cheie: c.cheie, nume: c.nume, atributii: c.ce, program: c.program, interior: c.interior })),
+      { entitateId: salubrizare!.id, cheie: "salubrizare-colectare", nume: "Colectare și transport", atributii: "Programul de colectare, recipientele, rutele" },
+      { entitateId: salubrizare!.id, cheie: "salubrizare-relatii", nume: "Relații cu utilizatorii", atributii: "Cereri, reclamații, recipiente noi" },
+    ])
     .returning({ id: s.compartimente.id, cheie: s.compartimente.cheie });
   const compId = new Map(comp.map((c) => [c.cheie, c.id]));
+
+  // Rolurile predefinite, pentru fiecare entitate, după tipul ei.
+  const rolId = new Map<string, string>();
+  for (const [entitate, tip] of [[primaria!.id, "primarie"], [salubrizare!.id, "serviciu_public"]] as const) {
+    for (const r of ROLURI_PREDEFINITE.filter((x) => x.tipuri.includes(tip))) {
+      const [rol] = await db
+        .insert(s.roluri)
+        .values({ entitateId: entitate, cheie: r.cheie, nume: r.nume, descriere: r.descriere, predefinit: true })
+        .returning({ id: s.roluri.id });
+      await db.insert(s.rolPermisiuni).values(r.permisiuni.map((permisiune) => ({ rolId: rol!.id, permisiune })));
+      rolId.set(`${entitate}:${r.cheie}`, rol!.id);
+    }
+  }
+
+  // Conturile de probă: câte unul pe funcție. Nume de funcții, nu de persoane.
+  const conturi: { entitate: string; nume: string; functie: string; roluri: [string, string | null][] }[] = [
+    { entitate: primaria!.id, nume: "Primarul în funcție (probă)", functie: "Primar", roluri: [["primar", null]] },
+    { entitate: primaria!.id, nume: "Viceprimarul (probă)", functie: "Viceprimar", roluri: [["viceprimar", null]] },
+    { entitate: primaria!.id, nume: "Secretarul general (probă)", functie: "Secretar general", roluri: [["secretar", null]] },
+    { entitate: primaria!.id, nume: "Registratura (probă)", functie: "Referent", roluri: [["registratura", null]] },
+    { entitate: primaria!.id, nume: "Inspector urbanism (probă)", functie: "Inspector", roluri: [["functionar", "urbanism"]] },
+    { entitate: primaria!.id, nume: "Inspector taxe și impozite (probă)", functie: "Inspector", roluri: [["functionar", "taxe"]] },
+    { entitate: primaria!.id, nume: "Consilier local (probă)", functie: "Consilier local", roluri: [["consilier", null]] },
+    { entitate: primaria!.id, nume: "Administratorul aplicației (probă)", functie: "Administrator", roluri: [["administrator", null]] },
+    { entitate: salubrizare!.id, nume: "Operator colectare (probă)", functie: "Operator", roluri: [["functionar", "salubrizare-colectare"]] },
+    { entitate: salubrizare!.id, nume: "Administratorul serviciului (probă)", functie: "Administrator", roluri: [["administrator", null]] },
+  ];
+  const utilizatorId = new Map<string, string>();
+  for (const [i, c] of conturi.entries()) {
+    const comp0 = c.roluri.find(([, cc]) => cc)?.[1];
+    const [nou] = await db
+      .insert(s.utilizatori)
+      .values({ entitateId: c.entitate, numeAfisat: c.nume, functie: c.functie, email: `proba${i + 1}@exemplu.invalid`, contLocal: true, compartimentId: comp0 ? compId.get(comp0) : null })
+      .returning({ id: s.utilizatori.id });
+    for (const [rol, cc] of c.roluri) {
+      await db.insert(s.utilizatorRoluri).values({ utilizatorId: nou!.id, rolId: rolId.get(`${c.entitate}:${rol}`)!, compartimentId: cc ? compId.get(cc) : null });
+    }
+    utilizatorId.set(c.nume, nou!.id);
+  }
+  const registratura = { id: utilizatorId.get("Registratura (probă)")! };
 
   const pers = await db
     .insert(s.persoane)
     .values(persoaneDeProba(40).map((p) => ({ ...p, esteProba: true })))
     .returning({ id: s.persoane.id });
-
-  const [registratura] = await db
-    .insert(s.utilizatori)
-    .values({ numeAfisat: "Registratura (probă)", rol: "registratura", contLocal: true, compartimentId: compId.get("registratura") })
-    .returning({ id: s.utilizatori.id });
 
   const r = aleator(11);
   const stari = s.stareDocument.enumValues;
@@ -116,7 +165,7 @@ async function incarcaDateDeProba(db: Db) {
       })
       .returning({ id: s.documente.id });
     await db.insert(s.jurnal).values({
-      utilizatorId: registratura!.id,
+      utilizatorId: registratura.id,
       actiune: "a înregistrat",
       entitate: "document",
       entitateId: doc!.id,
