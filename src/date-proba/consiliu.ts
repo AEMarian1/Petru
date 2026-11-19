@@ -37,7 +37,7 @@ export const SEDINTE: Sedinta[] = [
     data: "2026-11-12",
     tip: "de_indata",
     proiecte: [
-      { id: "p4", numar: "104", titlu: "Proiect de hotărâre privind aprobarea cofinanțării unui proiect de investiții (probă)", initiator: "Primarul în funcție", compartiment: "Proiecte cu finanțare externă", normativ: false, pas: "votat", rezultat: "aprobat", numarHcl: "96", vot: { pentru: 15, contra: 0, abtineri: 0 } },
+      { id: "p4", numar: "104", titlu: "Proiect de hotărâre privind aprobarea cofinanțării unui proiect de investiții (probă)", initiator: "Primarul în funcție", compartiment: "Proiecte și fonduri nerambursabile", normativ: false, pas: "votat", rezultat: "aprobat", numarHcl: "96", vot: { pentru: 15, contra: 0, abtineri: 0 } },
     ],
   },
   {
