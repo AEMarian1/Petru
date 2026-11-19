@@ -83,3 +83,14 @@ textarea, input[type="text"] {
   background: var(--suprafata); color: var(--text);
 }
 .nota { background: var(--atentie-fundal); color: var(--atentie-text); padding: 0.7rem 0.9rem; border-radius: 8px; }
+.buton-text { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); text-decoration: underline; cursor: pointer; }
+.buton-mic { padding: 0.3rem 0.7rem; font-size: 0.9rem; }
+select, input[type="email"] {
+  font: inherit; padding: 0.5rem; border: 1px solid var(--linie); border-radius: 8px; background: var(--suprafata); color: var(--text); max-width: 100%;
+}
+.rand-formular { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: end; }
+.rand-formular label { margin: 0 0 0.2rem; font-size: 0.85rem; }
+.matrice td, .matrice th { text-align: center; }
+.matrice td:first-child, .matrice th:first-child { text-align: left; }
+.eroare { background: #fde2e1; color: #6b1210; padding: 0.7rem 0.9rem; border-radius: 8px; }
+@media (prefers-color-scheme: dark) { .eroare { background: #4a1715; color: #ffd6d3; } }

@@ -15,6 +15,13 @@
       "when": 1795130162773,
       "tag": "0001_jurnal_doar_adaugare",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795131382386,
+      "tag": "0002_utilizatori_roluri_drepturi",
+      "breakpoints": true
     }
   ]
 }
