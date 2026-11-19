@@ -30,7 +30,8 @@ export const COMPARTIMENTE: Compartiment[] = [
   { cheie: "proiecte", nume: "Proiecte și fonduri nerambursabile", ce: "Cererile de finanțare, contractele, raportările", program: PROGRAM_OBISNUIT, interior: "113" },
   { cheie: "achizitii", nume: "Achizițiile publice", ce: "Programul anual, procedurile, contractele", program: PROGRAM_OBISNUIT, interior: "114" },
   { cheie: "patrimoniu", nume: "Patrimoniul", ce: "Inventarul domeniului public și privat, chirii, concesiuni", program: PROGRAM_OBISNUIT, interior: "115" },
-  { cheie: "mediu", nume: "Mediu și salubritate", ce: "Salubrizarea, colectarea selectivă, protecția mediului", program: PROGRAM_OBISNUIT, interior: "116" },
+  { cheie: "mediu", nume: "Mediu și salubritate", ce: "Protecția mediului; legătura primăriei cu serviciul de salubrizare (entitate separată)", program: PROGRAM_OBISNUIT, interior: "116" },
+  { cheie: "domeniu-public", nume: "Serviciul Domeniul public", ce: "Întreținerea domeniului public: drumuri, spații verzi, iluminat, clădiri", program: PROGRAM_OBISNUIT, interior: "119" },
   { cheie: "asociatii", nume: "Asociațiile de proprietari", ce: "Îndrumarea asociațiilor de proprietari", program: PROGRAM_OBISNUIT, interior: "117" },
   { cheie: "politie", nume: "Poliția locală", ce: "Ordinea publică, controale, procese-verbale de contravenție", program: PROGRAM_OBISNUIT, interior: "118" },
 ];
@@ -38,3 +39,18 @@ export const COMPARTIMENTE: Compartiment[] = [
 export function compartimentul(cheie: string): Compartiment | undefined {
   return COMPARTIMENTE.find((c) => c.cheie === cheie);
 }
+
+/**
+ * Entitățile legate de primărie, dar cu formă juridică proprie. Nu sunt compartimente:
+ * au datele lor, iar schimbul de documente cu ele trece prin registratură, ca la orice instituție.
+ */
+export type EntitateLegata = { cheie: string; nume: string; legatura: string; prinCompartiment: string };
+
+export const ENTITATI_LEGATE: EntitateLegata[] = [
+  {
+    cheie: "salubrizare",
+    nume: "Serviciul de salubrizare",
+    legatura: "Serviciu cu formă juridică distinctă, înființat de primărie; colectarea și transportul deșeurilor",
+    prinCompartiment: "mediu",
+  },
+];
