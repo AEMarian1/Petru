@@ -1,6 +1,6 @@
 # Birourile primăriei
 
-Lista dată de autor la 19.11.2026. Se completează pe măsură ce autorul descrie fiecare birou: numai funcții, fără nume și fără date ale cetățenilor.
+Lista dată de autor la 19.11.2026. Serviciul Domeniul public face parte din primărie. Se completează pe măsură ce autorul descrie fiecare birou: numai funcții, fără nume și fără date ale cetățenilor.
 
 | Biroul | Ce intră | Ce iese (și cine semnează) | Cu ce lucrează azi | Ce îl doare |
 |---|---|---|---|---|
@@ -20,9 +20,16 @@ Lista dată de autor la 19.11.2026. Se completează pe măsură ce autorul descr
 | Mediu și salubritate | | | | |
 | Asociațiile de proprietari | | | | |
 | Patrimoniul | | | | |
+| Serviciul Domeniul public | | | | |
 | Administrativ – Consiliul local | | | | |
 | Executări silite | | | | |
 | Poliția locală | | | | |
+
+## Entități legate, cu formă juridică proprie
+
+| Entitatea | Legătura cu primăria | Ce înseamnă pentru Petru |
+|---|---|---|
+| Serviciul de salubrizare | Formă juridică distinctă, înființat de primărie; legătura trece prin biroul Mediu și salubritate | Nu e un compartiment. E o instituție în registrul comun: documentele cu el trec prin registratură. Datele lui nu se amestecă cu ale primăriei (fiecare e operator de date). Dacă va folosi și el Petru, primește o instalare sau un spațiu separat |
 
 ## Față de site-ul public
 
