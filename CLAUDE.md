@@ -1,6 +1,6 @@
-# Petra — regulile depozitului
+# Petru — regulile depozitului
 
-Petra este aplicația pentru primării și instituții publice. Prima instalare este la o primărie de comună. Numele localității, al județului și al instituției sunt **setări**, nu se scriu în cod, în teste sau în texte fixe ale ecranelor.
+Petru este aplicația pentru primării și instituții publice. Prima instalare este la o primărie de comună. Numele localității, al județului și al instituției sunt **setări**, nu se scriu în cod, în teste sau în texte fixe ale ecranelor.
 
 Răspunsurile către autor se scriu în limba română.
 
@@ -11,7 +11,7 @@ Răspunsurile către autor se scriu în limba română.
 
 ## 2. De la zero
 
-- Petra pornește de la zero, la 19.11.2026. Nu intră în depozit nimic din **Sfera** și nimic din depozitul anterior **`primaria-sanpetru`**: nici cod, nici fișiere, nici șabloane, nici date, nici fragmente copiate „doar ca model”.
+- Petru pornește de la zero, la 19.11.2026. Nu intră în depozit nimic din **Sfera** și nimic din depozitul anterior **`primaria-sanpetru`**: nici cod, nici fișiere, nici șabloane, nici date, nici fragmente copiate „doar ca model”.
 - Din documentele anterioare ale autorului s-au luat numai ideile și regulile, scrise din nou. Evidența: [`docs/provenienta.md`](docs/provenienta.md).
 - Dacă o sarcină pare să ceară cod din Sfera sau din `primaria-sanpetru`, Claude se oprește și întreabă autorul.
 

@@ -1,8 +1,8 @@
 # Proveniența
 
-## De unde pornește Petra
+## De unde pornește Petru
 
-- Petra este scrisă **de la zero**, începând cu **19.11.2026**, în depozitul `petru`, gol la pornire.
+- Petru este scris **de la zero**, începând cu **19.11.2026**, în depozitul `petru`, gol la pornire.
 - Primul commit conține numai regulile și documentele. Codul vine după aprobarea arhitecturii.
 
 ## Ce NU s-a luat
@@ -27,7 +27,7 @@ Sursele sunt două documente ale autorului, scrise de el cu Claude înainte de 1
 
 ## Ce s-a schimbat față de documentele anterioare
 
-- Schița propunea un server în clădirea primăriei; prezentarea, un centru de date în România. Petra are producția în **Microsoft Azure (UE)**, pe contul primăriei.
+- Schița propunea un server în clădirea primăriei; prezentarea, un centru de date în România. Petru are producția în **Microsoft Azure (UE)**, pe contul primăriei.
 - Funcționarii intră cu **Entra ID**, contul Microsoft 365 al primăriei.
 - Numele localității este o setare, nu se scrie în cod.
 
@@ -35,3 +35,7 @@ Sursele sunt două documente ale autorului, scrise de el cu Claude înainte de 1
 
 - Istoria git a depozitului `petru` arată fiecare modificare, cu data și ora.
 - Orice sursă nouă de idei se adaugă în acest fișier, în același PR în care e folosită.
+
+## Numele
+
+- Pe 19.11.2026, autorul a hotărât ca produsul să se numească **Petru**, la fel ca depozitul `petru`. Primele documente îl numeau „Petra”.
