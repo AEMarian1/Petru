@@ -43,12 +43,12 @@ export const DOCUMENTE: Document[] = [
     tip: "Petiție",
     emitent: "Persoana de probă B",
     continut: "Sesizare privind iluminatul public pe o stradă (probă)",
-    compartiment: "Administrație locală",
+    compartiment: "Administrativ – Consiliul local",
     stare: "repartizat",
     termen: "2026-12-04",
     jurnal: [
       { cand: "2026-11-04 08:55", cine: "Registratura", ce: "A înregistrat petiția" },
-      { cand: "2026-11-04 11:20", cine: "Secretarul general", ce: "A repartizat la Administrație locală" },
+      { cand: "2026-11-04 11:20", cine: "Secretarul general", ce: "A repartizat la Administrativ – Consiliul local" },
     ],
   },
   {
