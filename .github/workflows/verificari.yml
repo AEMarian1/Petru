@@ -18,6 +18,19 @@ jobs:
   verificari:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    services:
+      baza:
+        image: postgres:17
+        env:
+          POSTGRES_DB: petru
+          POSTGRES_USER: petru
+          POSTGRES_PASSWORD: petru-ci
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U petru" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://petru:petru-ci@localhost:5432/petru
+      PETRU_MEDIU: local
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -27,4 +40,5 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
+      - run: npm run db:refacere
       - run: npm test

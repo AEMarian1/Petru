@@ -1,0 +1,14 @@
+# PostgreSQL pentru dezvoltarea locală. Parola e numai pentru calculatorul autorului, cu date inventate.
+services:
+  baza:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: petru
+      POSTGRES_USER: petru
+      POSTGRES_PASSWORD: petru-local
+    ports:
+      - "5432:5432"
+    volumes:
+      - baza:/var/lib/postgresql/data
+volumes:
+  baza:
