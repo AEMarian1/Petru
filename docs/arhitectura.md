@@ -1,10 +1,10 @@
-# Arhitectura Petrei și planul scheletului
+# Arhitectura lui Petru și planul scheletului
 
 > Stare: **propunere**. Scheletul nu se construiește până nu hotărăște autorul pe acest document. Întrebările deschise sunt la § 9.
 
 ## 1. Pe scurt
 
-Petra este o aplicație web: **Next.js** (TypeScript), cu **PostgreSQL standard**, ambalată în **containere**. Rulează în trei medii, fiecare cu baza lui:
+Petru este o aplicație web: **Next.js** (TypeScript), cu **PostgreSQL standard**, ambalată în **containere**. Rulează în trei medii, fiecare cu baza lui:
 
 | Mediul | Unde | Baza | Datele | Pentru cine |
 |---|---|---|---|---|
@@ -32,7 +32,7 @@ Reguli pentru bază, ca mutarea să fie directă: identificatori UUID, date și 
 ## 3. Conturile și intrarea
 
 - **Funcționarii** intră cu contul **Microsoft Entra ID** al primăriei (OpenID Connect), deci cu același cont ca în Microsoft 365 și cu al doilea pas pus de primărie.
-- **Rolurile** (primarul în funcție, secretarul general, registratura, birourile, administratorul aplicației ș.a.) se țin în baza Petrei și le dă administratorul aplicației. Pot fi legate, opțional, de grupuri Entra ID.
+- **Rolurile** (primarul în funcție, secretarul general, registratura, birourile, administratorul aplicației ș.a.) se țin în baza lui Petru și le dă administratorul aplicației. Pot fi legate, opțional, de grupuri Entra ID.
 - **Conturile locale** (nume și parolă) există **numai** în mediul local, în previzualizări și pe site-ul de test. În producție sunt oprite din cod: aplicația refuză să pornească dacă le găsește activate acolo.
 - **Cetățenii** intră mai târziu cu ROeID; nu fac parte din schelet.
 
@@ -70,7 +70,7 @@ Setarea instituției (numele, localitatea, județul, codul fiscal, sigla) stă �
 
 ### 6.2. Site-ul de test stabil, din `main`
 
-- Fiecare intrare în `main` publică site-ul de test, la o adresă fixă, pentru colegii din primărie.
+- Fiecare intrare în `main` publică site-ul de test, la adresa fixă `https://petru-test.netlify.app` (site-ul Netlify `petru-test`), pentru colegii din primărie.
 - Baza lui este **separată** de a previzualizărilor (ramura Neon `test`), ca un PR să nu strice ce încearcă colegii. Se reface la fiecare publicare din `main`.
 - **Conturi de probă pe roluri**: „Primarul în funcție (probă)”, „Secretarul general (probă)”, „Registratura (probă)”, „Biroul de urbanism (probă)”, „Administratorul aplicației (probă)”. Pe pagina de intrare se alege rolul dintr-o listă.
 - Bandă permanentă, sus: **„Mediu de probă: nu introduceți date reale”**.
@@ -116,4 +116,4 @@ La pasul S4 autorul își face singur conturile Netlify și Neon. Pașii exacți
 4. **Ecranele**: CSS propriu, simplu, sau Tailwind cu o bibliotecă de componente?
 5. **Producția**: Azure Container Apps (propunerea mea) sau Azure App Service pentru containere? Hotărăște, în final, firma de IT a primăriei.
 6. **Imaginea pentru producție**: o construiește firma de IT a primăriei din codul sursă predat, sau o publică autorul la fiecare versiune, iar administratorul o preia?
-7. **Numele afișat**: „Petra” singur sau „Petra — [numele instituției]”, din setare?
+7. **Numele afișat**: „Petru” singur sau „Petru — [numele instituției]”, din setare?
