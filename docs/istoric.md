@@ -34,7 +34,6 @@ Jurnalul hotărârilor și al pașilor, ca o sesiune nouă să poată continua d
 | #7 | S2: baza de date, migrările, datele de probă (pornește de la #6) | unit |
 | #8 | Propunerea: datele și harta (pornește de la #7) | unit (propunere) |
 | #9 | S3: utilizatorii, rolurile și drepturile (pornește de la #7) | unit |
-
 | #10 | Acest istoric | unit |
 
 La sfârșitul sesiunii, **toate PR-urile sunt unite în `main`**.
