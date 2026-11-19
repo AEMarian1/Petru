@@ -1,0 +1,17 @@
+# Netlify construiește previzualizările PR-urilor și site-ul de test (petru-test) din main.
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+[context.production.environment]
+  PETRU_MEDIU = "test"
+
+[context.deploy-preview.environment]
+  PETRU_MEDIU = "previzualizare"
+
+[context.branch-deploy.environment]
+  PETRU_MEDIU = "previzualizare"
