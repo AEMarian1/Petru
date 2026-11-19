@@ -30,12 +30,13 @@ Jurnalul hotărârilor și al pașilor, ca o sesiune nouă să poată continua d
 | #3 | Excepția pentru datele publice | unit |
 | #4 | S1: scheletul Next.js și demo-ul | unit |
 | #5 | Cercetarea pe surse publice | unit |
-| #6 | Demo: birourile, catalogul de formulare, consiliul local, harta nevoilor (`docs/nevoi.md`, `docs/birouri.md`) | **deschis** |
-| #7 | S2: baza de date, migrările, datele de probă (pornește de la #6) | **deschis** |
-| #8 | Propunerea: datele și harta (pornește de la #7) | **deschis**, de aprobat |
-| #9 | S3: utilizatorii, rolurile și drepturile (pornește de la #7) | **deschis** |
+| #6 | Demo: birourile, catalogul de formulare, consiliul local, harta nevoilor (`docs/nevoi.md`, `docs/birouri.md`) | unit |
+| #7 | S2: baza de date, migrările, datele de probă (pornește de la #6) | unit |
+| #8 | Propunerea: datele și harta (pornește de la #7) | unit (propunere) |
+| #9 | S3: utilizatorii, rolurile și drepturile (pornește de la #7) | unit |
+| #10 | Acest istoric | unit |
 
-**Ordinea de unire:** #6 → #7 → #8 → #9. Ramurile #7–#9 includ commit-urile celor dinainte. După unirea lui #6, diferențele celorlalte se micșorează singure.
+La sfârșitul sesiunii, **toate PR-urile sunt unite în `main`**.
 
 ### Mediile
 
@@ -59,8 +60,7 @@ Jurnalul hotărârilor și al pașilor, ca o sesiune nouă să poată continua d
 
 ### Pasul următor
 
-1. Unirea PR-urilor #6 → #7 → #8 → #9, după ce autorul le aprobă.
-2. **Primul birou: Registratura.** Autorul descrie cum se lucrează azi:
+1. **Primul birou: Registratura.** Autorul descrie cum se lucrează azi:
    - ce intră (hârtie, e-mail, platforme);
    - numerotarea;
    - repartizarea;
@@ -71,4 +71,4 @@ Jurnalul hotărârilor și al pașilor, ca o sesiune nouă să poată continua d
 
 ### Mesaj pentru sesiunea următoare
 
-> Citește `CLAUDE.md`, `docs/istoric.md`, `docs/arhitectura.md`, `docs/arhitectura-date.md`, `docs/nevoi.md` și `docs/birouri.md`. Verifică pe GitHub starea PR-urilor #6–#9. Continuăm cu biroul Registratura: întreabă-mă cum lucrează azi și construiește modulul pe baza răspunsurilor, cu PR propriu.
+> Citește `CLAUDE.md`, `docs/istoric.md`, `docs/arhitectura.md`, `docs/arhitectura-date.md`, `docs/nevoi.md` și `docs/birouri.md`. Continuăm cu biroul Registratura: întreabă-mă cum lucrează azi și construiește modulul pe baza răspunsurilor, cu PR propriu.
