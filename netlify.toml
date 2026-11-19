@@ -1,6 +1,7 @@
 # Netlify construiește previzualizările PR-urilor și site-ul de test (petru-test) din main.
+# La fiecare publicare, baza de probă se reface (date inventate). Fără DATABASE_URL, refacerea nu face nimic.
 [build]
-  command = "npm run build"
+  command = "npm run db:refacere && npm run build"
   publish = ".next"
 
 [build.environment]
