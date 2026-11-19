@@ -24,6 +24,9 @@ export default async function Radacina({ children }: { children: React.ReactNode
           <nav aria-label="Meniul principal">
             <Link href="/panou">Panou</Link>
             <Link href="/registratura">Registratura</Link>
+            <Link href="/consiliu">Consiliul local</Link>
+            <Link href="/formulare">Formulare</Link>
+            <Link href="/compartimente">Compartimente</Link>
             <Link href="/module">Modulele</Link>
           </nav>
           <span className="rol">{rol ? `Rol: ${rol.nume} (probă)` : "Neautentificat"}</span>
