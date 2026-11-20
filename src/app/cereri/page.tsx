@@ -23,7 +23,7 @@ type Cautare = { fel?: string; filtru?: string; an?: string };
 
 export default async function Cereri({ searchParams }: { searchParams: Promise<Cautare> }) {
   const u = await cere();
-  if (!u.poate("cereri.gestioneaza") && !u.poate("documente.vede_tot")) redirect("/fara-drept");
+  if (!(u.poate("cereri.gestioneaza") || u.poate("documente.vede_tot") || u.poate("documente.vede_compartiment"))) redirect("/fara-drept");
   const vedere = vedereaRegistrului(u.acordari);
   const b = db();
   if (!b) return <p className="eroare">Baza de date nu e configurată.</p>;
@@ -46,7 +46,7 @@ export default async function Cereri({ searchParams }: { searchParams: Promise<C
       <h1>Petițiile și informațiile publice</h1>
       <p className="slab">
         Registrele cererilor după OG 27/2002 și Legea 544/2001. Fiecare cerere e un document din registrul de intrare-ieșire,
-        cu ceasul termenului ei. Felul cererii îl stabilește registratura sau responsabilul, din fișa documentului.
+        cu ceasul termenului ei. Fiecare compartiment își ține petițiile: stabilește felul din fișa documentului, ține termenul și dă răspunsul. Aici fiecare vede cererile compartimentului său; conducerea și responsabilul le văd pe toate.
       </p>
 
       <nav className="pasi" aria-label="Registrele">

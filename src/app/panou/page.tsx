@@ -13,7 +13,7 @@ export default async function Panou() {
   const vedere = vedereaRegistrului(u.acordari);
   const b = db();
   const azi = aziInRomania();
-  const vedeCererile = u.poate("cereri.gestioneaza") || u.poate("documente.vede_tot");
+  const vedeCererile = u.poate("cereri.gestioneaza") || u.poate("documente.vede_tot") || u.poate("documente.vede_compartiment");
   const date = b && vedere.fel !== "nimic"
     ? await inEntitate(b, u.entitateId, async (tx) => ({
         cifre: await cifrele(tx, vedere, azi),

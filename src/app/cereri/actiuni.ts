@@ -46,15 +46,21 @@ function poateInchide(u: UtilizatorCurent, inchidere: Inchidere, compartimentId:
   return inchidere === "redirectionata" && u.poate("documente.inregistreaza");
 }
 
-/** Felul documentului: petiție, cerere 544 sau niciuna (registratura sau responsabilul cu cererile). */
+/**
+ * Felul documentului: petiție, cerere 544 sau niciuna. Îl stabilește compartimentul care lucrează
+ * documentul (fiecare compartiment își ține petițiile), registratura sau responsabilul cu cererile.
+ */
 export async function stabilesteFelulCererii(f: FormData) {
   const u = await cere();
-  if (!u.poate("cereri.gestioneaza") && !u.poate("documente.inregistreaza")) throw new Error("Nu aveți dreptul să stabiliți felul cererii.");
   const id = text(f, "id");
   const fel = text(f, "fel", 30);
   const solicitant = text(f, "solicitant", 30) || "nespecificat";
   if (!UUID.test(id) || (fel !== "niciuna" && !esteFelCerere(fel)) || !esteTipSolicitant(solicitant)) throw new Error("Cerere greșită.");
-  await inEntitate(baza(), u.entitateId, (tx) => stabilesteFelul(tx, { entitateId: u.entitateId, utilizatorId: u.id, documentId: id, fel: fel === "niciuna" ? null : fel, solicitant }));
+  await inEntitate(baza(), u.entitateId, async (tx) => {
+    const compartimentId = await compartimentul(tx, id);
+    if (!u.poate("cereri.gestioneaza") && !u.poate("documente.inregistreaza") && !u.poate("documente.rezolva", compartimentId)) throw new Error("Nu aveți dreptul să stabiliți felul cererii.");
+    await stabilesteFelul(tx, { entitateId: u.entitateId, utilizatorId: u.id, documentId: id, fel: fel === "niciuna" ? null : fel, solicitant });
+  });
   reimprospateaza(id);
 }
 

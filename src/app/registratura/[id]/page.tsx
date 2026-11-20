@@ -139,10 +139,10 @@ export default async function Fisa({ params }: { params: Promise<{ id: string }>
         <Ceasuri ceasuri={date.ceasuri} azi={azi} poatePrelungiDreptul={gestioneaza || rezolva} />
       )}
 
-      {intrare && (cerere || u.poate("documente.inregistreaza") || gestioneaza) && (
+      {intrare && (cerere || u.poate("documente.inregistreaza") || gestioneaza || rezolva) && (
         <Cererea
           docId={d.id} stare={d.stare} dataInregistrare={d.dataInregistrare.toISOString().slice(0, 10)} fisa={date.cerere} azi={azi} anul={d.an}
-          drepturi={{ felul: gestioneaza || u.poate("documente.inregistreaza"), inchideri, reclamatia: gestioneaza }}
+          drepturi={{ felul: gestioneaza || rezolva || u.poate("documente.inregistreaza"), inchideri, reclamatia: gestioneaza }}
         />
       )}
 

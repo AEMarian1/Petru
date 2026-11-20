@@ -38,7 +38,7 @@ O cerere e un document din registrul de intrare-ieșire, nu un registru paralel.
 
 | Pasul | Cine | Ce face Petru |
 |---|---|---|
-| **Felul** (petiție / 544 / niciuna) | registratura, responsabilul, secretarul general | La import, felul se pune singur când tipul e recunoscut sigur. Altfel, se alege din fișă și ceasul pornește după legea aleasă. Felul se schimbă numai până la soluție și până la prelungire. |
+| **Felul** (petiție / 544 / niciuna) | compartimentul care lucrează documentul, registratura, responsabilul, secretarul general | La import, felul se pune singur când tipul e recunoscut sigur. Altfel, se alege din fișă și ceasul pornește după legea aleasă. Felul se schimbă numai până la soluție și până la prelungire. |
 | **Prelungirea** | biroul care lucrează cererea, responsabilul | după regulile de mai sus |
 | **Redirecționarea** | registratura, biroul, responsabilul | instituția competentă și, opțional, numărul adresei de ieșire. Ieșirea se leagă de cerere. După 5 zile se marchează „după cele 5 zile”. |
 | **Conexarea** | biroul, responsabilul | Aceeași problemă, același solicitant: cererea se leagă de cererea de bază și primește același răspuns. Se conexează numai cereri de același fel. |
@@ -73,10 +73,12 @@ Structura exactă a raportului semestrial (OG 27/2002) și a raportului anual (a
 | Rolul | Registrele cererilor | Fișa |
 |---|---|---|
 | Conducerea (vede tot) | da, cu rapoartele | întreagă |
-| Responsabilul cu petițiile și informațiile publice (rol nou) | da, cu rapoartele | numai documentele care sunt cereri, cu urma pașilor |
+| Responsabilul cu petițiile și informațiile publice (rol nou) | da, toate, cu rapoartele; ține reclamațiile pe Legea 544 | numai documentele care sunt cereri, cu urma pașilor |
 | Secretarul general | da (are acum și dreptul `cereri.gestioneaza`) | întreagă |
 | Registratura | nu vede registrele | fișa de înregistrare; poate stabili felul și redirecționa |
-| Funcționarul de compartiment | nu vede registrele | cererile compartimentului; prelungește, clasează, conexează, redirecționează |
+| Funcționarul de compartiment | **cererile compartimentului său, cu raportul lor** | cererile compartimentului; stabilește felul, ține termenul (prelungește), răspunde, clasează, conexează, redirecționează |
+
+**Cum se lucrează azi (răspunsul autorului, 20.11.2026):** petiția o ține fiecare compartiment: el ține termenul și dă răspunsul. Nu există un registru central al petițiilor ținut de o singură persoană. De aceea, în Petru, registrul petițiilor e o vedere peste registrul de intrare-ieșire: fiecare compartiment își vede petițiile; conducerea și responsabilul le văd pe toate, pentru raportul semestrial.
 
 ## Izolarea în bază
 

@@ -34,7 +34,7 @@ export const ROLURI_PREDEFINITE: RolPredefinit[] = [
   },
   {
     cheie: "responsabil_cereri", nume: "Responsabilul cu petițiile și informațiile publice", tipuri: ["primarie", "serviciu_public"],
-    descriere: "Ține registrele petițiilor și ale cererilor pe Legea 544: felul cererii, prelungirea, redirecționarea, clasarea, reclamațiile, rapoartele.",
+    descriere: "Ține registrul cererilor pe Legea 544 și reclamațiile administrative; vede toate petițiile și rapoartele. Petițiile le lucrează fiecare compartiment.",
     permisiuni: ["cereri.gestioneaza"],
   },
   {

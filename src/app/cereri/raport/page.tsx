@@ -16,7 +16,7 @@ function Rand({ ce, n, slab }: { ce: string; n: number; slab?: boolean }) {
 
 export default async function Raport({ searchParams }: { searchParams: Promise<Cautare> }) {
   const u = await cere();
-  if (!u.poate("cereri.gestioneaza") && !u.poate("documente.vede_tot")) redirect("/fara-drept");
+  if (!(u.poate("cereri.gestioneaza") || u.poate("documente.vede_tot") || u.poate("documente.vede_compartiment"))) redirect("/fara-drept");
   const vedere = vedereaRegistrului(u.acordari);
   const b = db();
   if (!b) return <p className="eroare">Baza de date nu e configurată.</p>;
@@ -35,7 +35,7 @@ export default async function Raport({ searchParams }: { searchParams: Promise<C
       <p className="slab"><Link href={`/cereri?fel=${fel}`}>← {FELURI[fel].registru}</Link></p>
       <h1>{fel === "petitie" ? "Raportul petițiilor" : "Raportul privind accesul la informațiile de interes public"}, {perioada.nume}</h1>
       <p className="slab">
-        {u.entitateNume} · cererile înregistrate între {dataRo(perioada.de)} și {dataRo(perioada.pana)}, cu situația din {dataRo(la)}.
+        {u.entitateNume}{vedere.fel === "compartimente" && vedere.ids !== "toate" && " · numai compartimentele dumneavoastră"} · cererile înregistrate între {dataRo(perioada.de)} și {dataRo(perioada.pana)}, cu situația din {dataRo(la)}.
         Structura raportului e de confirmat de jurist pe {fel === "petitie" ? "OG 27/2002" : "Legea 544/2001 și normele ei"}.
       </p>
 
