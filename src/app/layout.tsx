@@ -25,6 +25,7 @@ export default async function Radacina({ children }: { children: React.ReactNode
           <nav aria-label="Meniul principal">
             {u && <Link href="/panou">Panou</Link>}
             <Link href="/registratura">Registratura</Link>
+            {u && (u.poate("cereri.gestioneaza") || u.poate("documente.vede_tot")) && <Link href="/cereri">Petiții și 544</Link>}
             <Link href="/consiliu">Consiliul local</Link>
             <Link href="/formulare">Formulare</Link>
             <Link href="/compartimente">Compartimente</Link>

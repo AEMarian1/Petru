@@ -13,6 +13,12 @@ describe("drumul actului", () => {
     expect(poateTrece("inregistrat", "publicat")).toBe(false);
   });
 
+  it("o cerere se poate închide fără răspuns în fond (redirecționată, clasată, conexată)", () => {
+    expect(poateTrece("inregistrat", "arhivat")).toBe(true);
+    expect(poateTrece("repartizat", "arhivat")).toBe(true);
+    expect(poateTrece("la_semnat", "arhivat")).toBe(false);
+  });
+
   it("nu iese din arhivă", () => {
     expect(poateTrece("arhivat", "in_lucru")).toBe(false);
   });

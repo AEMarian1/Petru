@@ -8,7 +8,11 @@ import { cere, type UtilizatorCurent } from "@/autentificare/utilizator";
 import { db } from "@/baza/db";
 import { inEntitate } from "@/baza/entitate";
 import { compartimente, documente, importuri, jurnal } from "@/baza/schema";
-import { aplicaImportul } from "@/baza/registratura";
+import { aplicaImportul, creeazaIesirea } from "@/baza/registratura";
+import { opresteCeasurile, prelungesteCeasul } from "@/baza/ceasuri";
+import { cerereaDocumentului, scrieSolutia } from "@/baza/cereri";
+import { ceasuri, cereri } from "@/baza/schema";
+import { esteSolutieLaRaspuns, ETICHETE_SOLUTIE } from "@/domeniu/cereri";
 import { citesteExportul, citesteData, citesteNumar } from "@/domeniu/import-registru";
 import { poateTrece } from "@/domeniu/drumul-actului";
 import { aziInRomania, esteModExpediere, PASI, pasiiPosibili, type Pas } from "@/domeniu/registratura";
@@ -54,6 +58,9 @@ export async function facePasul(f: FormData) {
       const motiv = text(f, "motiv", 300);
       if (!motiv) throw new Error("Scrieți motivul clasării.");
       detalii.motiv = motiv;
+      const azi = aziInRomania();
+      await opresteCeasurile(tx, { documentId: id, la: azi, motiv: `clasat: ${motiv}` });
+      await tx.update(cereri).set({ solutie: "clasata", solutieLa: azi, solutieMotiv: motiv, actualizatLa: new Date() }).where(eq(cereri.documentId, id));
     }
     await tx.update(documente).set(schimbari).where(eq(documente.id, id));
     await tx.insert(jurnal).values({ utilizatorId: u.id, actiune: PASI[pas].facut, entitate: "document", entitateId: id, detalii });
@@ -74,29 +81,47 @@ export async function inregistreazaIesirea(f: FormData) {
   const mod = text(f, "mod", 20);
   const destinatar = text(f, "destinatar") || null;
   if (!UUID.test(id) || numar === null || !data || !esteModExpediere(mod)) throw new Error("Completați numărul de ieșire, data și cum a plecat.");
+  const solutie = text(f, "solutie", 40);
   await inEntitate(baza(), u.entitateId, async (tx) => {
     const [d] = await tx.select().from(documente).where(eq(documente.id, id)).for("update");
     if (!d) throw new Error("Documentul nu există.");
     if (!poateFacePasul(u, "iesire", d.compartimentId)) throw new Error("Nu aveți dreptul pentru acest pas.");
     if (!poateTrece(d.stare, "emis")) throw new Error("Răspunsul trebuie să fie întâi la semnat.");
-    const an = Number(data.slice(0, 4));
-    const [ocupat] = await tx.select({ id: documente.id }).from(documente).where(and(eq(documente.an, an), eq(documente.numar, numar)));
-    if (ocupat) throw new Error(`Numărul ${numar}/${an} există deja în registru.`);
-    const [iesire] = await tx
-      .insert(documente)
-      .values({
-        entitateId: u.entitateId, an, numar, dataInregistrare: new Date(`${data}T12:00:00Z`), directie: "iesire", sursa: "petru",
-        tip: `Răspuns la nr. ${d.numar}/${d.an}`, continut: `Răspuns la: ${d.continut}`.slice(0, 2000),
-        compartimentId: d.compartimentId, raspunsLaId: d.id, destinatarText: destinatar ?? d.emitentText,
-        modExpediere: mod, expediatLa: data, stare: "emis",
-      })
-      .returning({ id: documente.id });
+    const cerere = await cerereaDocumentului(tx, d.id);
+    if (cerere && !cerere.solutie && !esteSolutieLaRaspuns(cerere.fel, solutie)) throw new Error("Alegeți soluția dată cererii.");
+    await creeazaIesirea(tx, { entitateId: u.entitateId, utilizatorId: u.id, intrare: d, numar, data, mod, destinatar, motivOprire: `răspuns nr. ${numar}` });
     await tx.update(documente).set({ stare: "emis", actualizatLa: new Date() }).where(eq(documente.id, d.id));
-    await tx.insert(jurnal).values({ utilizatorId: u.id, actiune: "a înregistrat ieșirea", entitate: "document", entitateId: d.id, detalii: { iesire: `${numar}/${an}`, mod } });
-    await tx.insert(jurnal).values({ utilizatorId: u.id, actiune: "ieșire înregistrată", entitate: "document", entitateId: iesire!.id, detalii: { laNumar: `${d.numar}/${d.an}` } });
+    if (cerere && !cerere.solutie && esteSolutieLaRaspuns(cerere.fel, solutie)) {
+      await scrieSolutia(tx, { documentId: d.id, solutie, la: data });
+      await tx.insert(jurnal).values({ utilizatorId: u.id, actiune: `soluția: ${ETICHETE_SOLUTIE[solutie].toLowerCase()}`, entitate: "document", entitateId: d.id });
+    }
   });
   revalidatePath(`/registratura/${id}`);
   revalidatePath("/registratura");
+}
+
+/**
+ * Prelungirea termenului, când legea o permite (petiția: cu 15 zile, hotărâtă de conducătorul
+ * instituției; cererea 544: până la 30 de zile, cu înștiințarea solicitantului în primele 10 zile).
+ */
+export async function prelungesteTermenul(f: FormData) {
+  const u = await cere();
+  const ceasId = text(f, "ceas");
+  const la = citesteData(text(f, "data", 20));
+  const motiv = text(f, "motiv", 300);
+  const instiintare = text(f, "instiintare", 200) || null;
+  if (!UUID.test(ceasId) || !la || !motiv) throw new Error("Completați data și motivul prelungirii.");
+  if (la > aziInRomania()) throw new Error("Data prelungirii nu poate fi în viitor.");
+  const docId = await inEntitate(baza(), u.entitateId, async (tx) => {
+    const [c] = await tx.select({ documentId: ceasuri.documentId, compartimentId: documente.compartimentId }).from(ceasuri).innerJoin(documente, eq(documente.id, ceasuri.documentId)).where(eq(ceasuri.id, ceasId));
+    if (!c) throw new Error("Ceasul nu există.");
+    if (!u.poate("cereri.gestioneaza") && !u.poate("documente.rezolva", c.compartimentId)) throw new Error("Nu aveți dreptul să prelungiți termenul.");
+    await prelungesteCeasul(tx, { ceasId, la, motiv, instiintare, utilizatorId: u.id });
+    return c.documentId;
+  });
+  revalidatePath(`/registratura/${docId}`);
+  revalidatePath("/registratura");
+  revalidatePath("/cereri");
 }
 
 /** Confirmarea de primire a unei ieșiri (confirmarea poștei, a e-mailului sau semnătura la ghișeu). */

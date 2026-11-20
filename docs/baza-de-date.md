@@ -6,13 +6,15 @@ PostgreSQL standard, cu migrări SQL numerotate în `migrari/` (Drizzle).
 
 | Schema | Ce ține | Se reface la publicare? |
 |---|---|---|
-| `petru` | datele aplicației: instituția, compartimentele, registrul comun (persoane), utilizatorii, documentele, jurnalul | da, în mediile de probă |
+| `petru` | datele aplicației: instituția, compartimentele, registrul comun (persoane), utilizatorii, documentele, ceasurile termenelor, cererile (petiții, Legea 544), jurnalul | da, în mediile de probă |
 | `petru_migrari` | evidența migrărilor aplicate | da, odată cu `petru` |
 | `observatii` | observațiile din „Ce lipsește?” | **niciodată** |
 
 Jurnalul (`petru.jurnal`) se poate doar completa: modificarea, ștergerea și golirea sunt refuzate de bază (migrarea `0001`).
 
 Documentele și importurile sunt izolate pe entități în bază (migrarea `0004`): aplicația le citește și le scrie în rolul `petru_aplicatie`, cu entitatea utilizatorului, prin `inEntitate` din `src/baza/entitate.ts`. Migrarea creează rolul (fără drept de intrare) și i-l dă utilizatorului care rulează migrările. Refacerea datelor de probă folosește `caSistem`.
+
+Ceasurile termenelor (`petru.ceasuri`) și cererile (`petru.cereri`) sunt izolate la fel (migrarea `0005`). În plus, o cheie străină compusă (document, entitate) oprește legarea unui ceas sau a unei cereri de documentul altei entități, chiar cu identificatorul lui: verificarea cheilor străine nu trece prin securitatea la nivel de rând. Vezi [`termene.md`](termene.md).
 
 ## Comenzile
 

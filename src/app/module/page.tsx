@@ -9,9 +9,10 @@ const REGISTRE = [
 ];
 
 const MODULE: Modul[] = [
-  { versiune: "0.1", nume: "Registratura și petițiile", ce: "Înregistrare, repartizare, răspuns în termen" },
-  { versiune: "0.1", nume: "Informații publice (Legea 544)", ce: "Termenele de 10/30 de zile, raportul anual" },
-  { versiune: "0.1", nume: "Termenele și sarcinile", ce: "Termenele legale puse singure, cu atenționări" },
+  { versiune: "0.1", nume: "Registratura", ce: "Importul registrului oficial, repartizare, mersul actului, ieșirea și confirmarea" },
+  { versiune: "0.1.1", nume: "Ceasul termenelor", ce: "Termenele legale pe tip de act, zile lucrătoare și sărbători, prelungiri, termene intermediare" },
+  { versiune: "0.1.1", nume: "Petițiile (OG 27/2002)", ce: "Registrul, prelungirea cu 15 zile, redirecționarea, conexarea, clasarea, raportul semestrial" },
+  { versiune: "0.1.1", nume: "Informații publice (Legea 544)", ce: "Termenele de 5/10/30 de zile, reclamația administrativă, raportul anual" },
   { versiune: "0.2", nume: "Consiliul local (HCL)", ce: "Proiecte, avize, ședințe, vot, registrul HCL, Monitorul Oficial Local" },
   { versiune: "0.2", nume: "Dispozițiile primarului", ce: "Proiecte, avizul de legalitate, registrul, comunicarea la prefect" },
   { versiune: "0.2", nume: "Controlul de legalitate (deferate)", ce: "Actele atacate de prefect, termenele, legătura cu litigiul" },

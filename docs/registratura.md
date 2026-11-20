@@ -64,5 +64,4 @@ Exportul poate fi în UTF-8 sau în Windows-1250. Pe site-ul de test se foloseș
 - Înregistrarea direct în Petru (fără SOBIS), dacă se hotărăște înlocuirea modulului de registratură.
 - Scanările și fișierele atașate (stratul de stocare).
 - Legarea emitentului de registrul comun al persoanelor.
-- Sărbătorile legale la termenele în zile lucrătoare și prelungirile (OG 27/2002, Legea 544/2001).
-- Petițiile și Legea 544 ca registre proprii, cu raportul anual.
+- ~~Sărbătorile legale la termenele în zile lucrătoare și prelungirile; petițiile și Legea 544 ca registre proprii, cu rapoartele~~: făcute în 0.1.1, vezi [`termene.md`](termene.md).

@@ -94,9 +94,9 @@ La sfârșitul sesiunii, **toate PR-urile sunt unite în `main`**.
 
 | PR | Ce | Starea la sfârșitul sesiunii |
 |---|---|---|
-| #12 | Registratura 0.1: importul exportului SOBIS, termenele, mersul documentului, ieșirea și confirmarea, panoul; izolarea entităților în bază | deschis |
-| #13 | Localitatea și județul instituției ca setări | deschis |
-| #14 | Cercetarea: concurența, legea, transparența și clipurile trunchiate, ecosistemul propus | deschis |
+| #12 | Registratura 0.1: importul exportului SOBIS, termenele, mersul documentului, ieșirea și confirmarea, panoul; izolarea entităților în bază | unit (după sesiune) |
+| #13 | Localitatea și județul instituției ca setări | unit (după sesiune) |
+| #14 | Cercetarea: concurența, legea, transparența și clipurile trunchiate, ecosistemul propus | unit (după sesiune) |
 
 ### Întrebări deschise
 
@@ -113,3 +113,31 @@ Autorul unește PR-urile #12, #13, #14. Se construiește 0.1.x (ceasul termenelo
 ### Mesaj pentru sesiunea următoare
 
 > Citește `CLAUDE.md`, `docs/istoric.md`, `docs/arhitectura.md`, `docs/arhitectura-date.md`, `docs/registratura.md` și `docs/cercetare/platforma-concurenta-si-lege.md`. Continuăm cu ecosistemul: construim peste proiectul de digitalizare, în ordinea confirmată; începe cu 0.1.x (ceasul termenelor, petițiile, Legea 544), cu PR propriu.
+
+## Sesiunea 3 — 20.11.2026
+
+### Ce s-a hotărât
+
+| Hotărârea | Unde e scrisă |
+|---|---|
+| Se construiește 0.1.1: ceasul termenelor ca serviciu comun, registrele petițiilor și ale cererilor 544, cu rapoartele | `docs/termene.md` |
+| Termenele în zile calendaristice care cad într-o zi nelucrătoare nu se mută (calcul prudent); întrebarea merge la jurist (J13) | `docs/termene.md` |
+| O cerere e un document din registru, nu un registru paralel; redirecționarea, clasarea și conexarea o închid fără răspuns în fond (înregistrat/repartizat → arhivat) | `docs/termene.md`, `src/domeniu/drumul-actului.ts` |
+| Drept nou `cereri.gestioneaza` și rol nou „Responsabilul cu petițiile și informațiile publice”; secretarul general primește dreptul | `docs/utilizatori-si-roluri.md` |
+
+### Ce s-a construit
+
+| PR | Ce | Starea la sfârșitul sesiunii |
+|---|---|---|
+| (acest PR) | 0.1.1: calendarul cu sărbătorile legale, ceasul termenelor (prelungire, termene intermediare, oprire), registrele petițiilor și ale cererilor 544, reclamația administrativă, rapoartele semestrial și anual, migrarea `0005` cu izolarea pe entități | deschis |
+
+### Întrebări deschise
+
+1. J13–J17 din `docs/termene.md` (termenul căzut în zi nelucrătoare, redirecționarea în 5 zile, prelungirea petiției, reclamația 544, lista sărbătorilor).
+2. Cine e azi responsabilul cu Legea 544 și cu petițiile (funcția), și cine hotărăște prelungirea petiției.
+3. Cum apar petițiile și cererile 544 în exportul SOBIS (o coloană de tip?), ca felul să se recunoască singur mai des.
+4. Rămân întrebările din sesiunile 1 și 2.
+
+### Pasul următor
+
+Autorul verifică PR-ul pe previzualizare (contul de probă „Responsabilul cu petițiile și informațiile publice” și „Secretarul general”) și îl unește. Apoi 0.2: șabloanele, avizele, consiliul local și dispozițiile, cu ceasul la prefect.

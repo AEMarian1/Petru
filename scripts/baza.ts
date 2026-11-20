@@ -17,6 +17,8 @@ import { caSistem } from "../src/baza/entitate";
 import { aziInRomania, dataLimita, recunoasteTermenul } from "../src/domeniu/registratura";
 import { adaugaZile } from "../src/domeniu/termene";
 import { setareaInstitutiei } from "../src/domeniu/mediu";
+import { opreste, pornesteCeasul, prelungeste, poatePrelungi, type Ceas } from "../src/domeniu/ceas";
+import { felulDupaTermen, type Solutie } from "../src/domeniu/cereri";
 
 const LACAT_REFACERE = 7_202_611;
 const MIGRARI = { migrationsFolder: "migrari", migrationsSchema: "petru_migrari", migrationsTable: "migrari" };
@@ -118,6 +120,7 @@ async function incarcaDateDeProba(db: Db) {
     { entitate: primaria!.id, nume: "Viceprimarul (probă)", functie: "Viceprimar", roluri: [["viceprimar", null]] },
     { entitate: primaria!.id, nume: "Secretarul general (probă)", functie: "Secretar general", roluri: [["secretar", null]] },
     { entitate: primaria!.id, nume: "Registratura (probă)", functie: "Referent", roluri: [["registratura", null]] },
+    { entitate: primaria!.id, nume: "Responsabilul cu petițiile și informațiile publice (probă)", functie: "Consilier", roluri: [["responsabil_cereri", null]] },
     { entitate: primaria!.id, nume: "Inspector urbanism (probă)", functie: "Inspector", roluri: [["functionar", "urbanism"]] },
     { entitate: primaria!.id, nume: "Inspector taxe și impozite (probă)", functie: "Inspector", roluri: [["functionar", "taxe"]] },
     { entitate: primaria!.id, nume: "Consilier local (probă)", functie: "Consilier local", roluri: [["consilier", null]] },
@@ -151,11 +154,69 @@ async function incarcaDateDeProba(db: Db) {
  * Registrul de probă: intrări cu date în ultimele două luni, ca să existe termene depășite, apropiate
  * și în termen; câteva ieșiri legate de intrări, unele cu confirmare de primire. Totul e inventat.
  */
+/**
+ * Ceasul termenului și, la petiții și cereri 544, rândul din registrul lor: câteva prelungite, una
+ * redirecționată, una clasată, o reclamație administrativă. Totul e inventat.
+ */
+async function ceasSiCerere(
+  tx: Parameters<Parameters<typeof caSistem>[1]>[0],
+  a: { entitateId: string; documentId: string; data: string; cheie: string; recunoscut: boolean; stare: string; opritLa: string | null; juridica: boolean; zar: () => number },
+) {
+  const azi = aziInRomania();
+  let c: Ceas = pornesteCeasul(a.cheie, a.data);
+  const fel = felulDupaTermen(a.cheie, a.recunoscut);
+  let motivPrelungire: string | null = null;
+  const laPrelungire = adaugaZile(a.data, 3, "calendaristice");
+  if (fel && a.zar() < 0.3 && laPrelungire <= azi && poatePrelungi(c, laPrelungire).da) {
+    c = prelungeste(c, laPrelungire);
+    motivPrelungire = fel === "petitie" ? "cere o cercetare la fața locului (probă)" : "informația trebuie adunată din mai multe compartimente (probă)";
+  }
+  let solutie: Solutie | null = null;
+  let motivOprire: string | null = null;
+  let catre: string | null = null;
+  if (a.opritLa) {
+    const zar = a.zar();
+    if (a.stare === "arhivat") {
+      solutie = fel === "petitie" && zar < 0.5 ? "redirectionata" : "clasata";
+      if (solutie === "redirectionata") catre = "Instituția competentă (probă)";
+      motivOprire = solutie === "clasata" ? "petiție fără date de identificare (probă)" : "redirecționată (probă)";
+    } else {
+      solutie = fel === "petitie" ? (zar < 0.7 ? "favorabila" : "nefavorabila") : (zar < 0.6 ? "comunicata" : zar < 0.8 ? "comunicata_partial" : "respinsa_exceptata");
+      motivOprire = "răspuns (probă)";
+    }
+    c = opreste(c, a.opritLa);
+  }
+  await tx.insert(s.ceasuri).values({
+    entitateId: a.entitateId, documentId: a.documentId, regula: c.regula, pornitLa: c.pornitLa, termenInitial: c.termenInitial, termen: c.termen,
+    prelungitLa: c.prelungitLa, prelungireMotiv: motivPrelungire, instiintare: motivPrelungire ? "adresă de ieșire (probă)" : null, opritLa: c.opritLa, motivOprire,
+  });
+  if (c.termen !== c.termenInitial) await tx.update(s.documente).set({ termen: c.termen }).where(sql`${s.documente.id} = ${a.documentId}`);
+  if (!fel) return;
+  const [cerere] = await tx
+    .insert(s.cereri)
+    .values({
+      entitateId: a.entitateId, documentId: a.documentId, fel, solicitant: a.juridica ? "juridica" : "fizica",
+      solutie: fel ? solutie : null, solutieLa: solutie ? a.opritLa : null, solutieMotiv: solutie === "clasata" ? motivOprire : null, redirectionatCatre: catre,
+    })
+    .returning({ id: s.cereri.id });
+  // O reclamație administrativă la un refuz pe Legea 544, cu termenul de 15 zile pornit.
+  if (fel === "informatii_publice" && solutie === "respinsa_exceptata" && a.opritLa) {
+    const la = adaugaZile(a.opritLa, 2, "calendaristice");
+    if (la <= azi) {
+      const rc = pornesteCeasul("544-reclamatie", la);
+      await tx.insert(s.ceasuri).values({ entitateId: a.entitateId, documentId: a.documentId, regula: rc.regula, pornitLa: rc.pornitLa, termenInitial: rc.termenInitial, termen: rc.termen });
+      await tx.update(s.cereri).set({ reclamatieLa: la, reclamatieNumar: "probă" }).where(sql`${s.cereri.id} = ${cerere!.id}`);
+    }
+  }
+}
+
 async function documenteDeProba(db: Db, primariaId: string, salubrizareId: string, compId: Map<string, string>, persoaneIds: string[], registraturaId: string) {
   const r = aleator(11);
   const azi = aziInRomania();
   const zi = (inUrma: number) => adaugaZile(azi, -inUrma, "calendaristice");
   const canale = s.canalIntrare.enumValues;
+  // Al doilea generator, pentru ceasuri și cereri, ca registrul de mai sus să rămână același.
+  const r2 = aleator(12);
   await caSistem(db, async (tx) => {
     let numar = 1001;
     for (let i = 0; i < 60; i++) {
@@ -180,9 +241,10 @@ async function documenteDeProba(db: Db, primariaId: string, salubrizareId: strin
         })
         .returning({ id: s.documente.id, an: s.documente.an, numar: s.documente.numar });
       await tx.insert(s.jurnal).values({ utilizatorId: registraturaId, actiune: "a înregistrat", entitate: "document", entitateId: doc!.id, detalii: { numar: doc!.numar, proba: true } });
+      const dataIesire = adaugaZile(data, Math.min(tl.zile, 1 + Math.floor(r() * tl.zile)), "calendaristice");
+      const iesireData = dataIesire > azi ? azi : dataIesire;
+      await ceasSiCerere(tx, { entitateId: primariaId, documentId: doc!.id, data, cheie: tl.cheie, recunoscut, stare, opritLa: stare === "emis" || stare === "arhivat" ? iesireData : null, juridica: (i % persoaneIds.length) % 5 === 4, zar: r2 });
       if (stare === "emis" || stare === "arhivat") {
-        const dataIesire = adaugaZile(data, Math.min(tl.zile, 1 + Math.floor(r() * tl.zile)), "calendaristice");
-        const iesireData = dataIesire > azi ? azi : dataIesire;
         const mod = (["posta", "email", "ghiseu", "platforma"] as const)[Math.floor(r() * 4)]!;
         await tx.insert(s.documente).values({
           entitateId: primariaId, an: Number(iesireData.slice(0, 4)), numar: numar++, dataInregistrare: new Date(`${iesireData}T13:00:00Z`),

@@ -36,6 +36,13 @@
       "when": 1795133640184,
       "tag": "0004_izolarea_entitatilor",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795187180761,
+      "tag": "0005_ceasuri_si_cereri",
+      "breakpoints": true
     }
   ]
 }
