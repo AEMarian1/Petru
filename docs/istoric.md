@@ -136,7 +136,7 @@ Autorul unește PR-urile #12, #13, #14. Se construiește 0.1.x (ceasul termenelo
 ### Întrebări deschise
 
 1. J13–J17 din `docs/termene.md` (termenul căzut în zi nelucrătoare, redirecționarea în 5 zile, prelungirea petiției, reclamația 544, lista sărbătorilor).
-2. Cine e azi responsabilul cu Legea 544 (funcția). Prelungirea: o hotărăște conducătorul (răspunsul autorului; aplicat). Petițiile: **le ține fiecare compartiment**, care ține termenul și dă răspunsul (răspunsul autorului; aplicat în acest PR).
+2. Responsabilul cu Legea 544: **biroul Administrație publică** (trecut în listă ca „Administrativ – Consiliul local”, acum redenumit). Prelungirea: o hotărăște conducătorul. Ambele aplicate. Petițiile: **le ține fiecare compartiment**, care ține termenul și dă răspunsul (răspunsul autorului; aplicat în acest PR).
 3. Ce coloane are exportul SOBIS: autorul nu știe. De aflat de la cine folosește modulul de registratură sau de la furnizor (numai numele coloanelor). Până atunci, felul cererii îl stabilește compartimentul din fișă, când nu se recunoaște singur.
 4. Rămân întrebările din sesiunile 1 și 2.
 

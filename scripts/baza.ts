@@ -120,7 +120,8 @@ async function incarcaDateDeProba(db: Db) {
     { entitate: primaria!.id, nume: "Viceprimarul (probă)", functie: "Viceprimar", roluri: [["viceprimar", null]] },
     { entitate: primaria!.id, nume: "Secretarul general (probă)", functie: "Secretar general", roluri: [["secretar", null]] },
     { entitate: primaria!.id, nume: "Registratura (probă)", functie: "Referent", roluri: [["registratura", null]] },
-    { entitate: primaria!.id, nume: "Responsabilul cu petițiile și informațiile publice (probă)", functie: "Consilier", roluri: [["responsabil_cereri", null]] },
+    // Biroul Administrație publică e responsabilul cu Legea 544: lucrează cererile lui și ține registrele.
+    { entitate: primaria!.id, nume: "Inspector administrație publică (probă)", functie: "Inspector", roluri: [["functionar", "administratie"], ["responsabil_cereri", null]] },
     { entitate: primaria!.id, nume: "Inspector urbanism (probă)", functie: "Inspector", roluri: [["functionar", "urbanism"]] },
     { entitate: primaria!.id, nume: "Inspector taxe și impozite (probă)", functie: "Inspector", roluri: [["functionar", "taxe"]] },
     { entitate: primaria!.id, nume: "Consilier local (probă)", functie: "Consilier local", roluri: [["consilier", null]] },

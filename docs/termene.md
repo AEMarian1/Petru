@@ -74,7 +74,7 @@ Structura exactă a raportului semestrial (OG 27/2002) și a raportului anual (a
 | Rolul | Registrele cererilor | Fișa |
 |---|---|---|
 | Conducerea (vede tot) | da, cu rapoartele | întreagă |
-| Responsabilul cu petițiile și informațiile publice (rol nou) | da, toate, cu rapoartele; ține reclamațiile pe Legea 544 | numai documentele care sunt cereri, cu urma pașilor |
+| Responsabilul cu petițiile și informațiile publice (rol nou; în instituție: **biroul Administrație publică**) | da, toate, cu rapoartele; ține reclamațiile pe Legea 544 | numai documentele care sunt cereri, cu urma pașilor |
 | Secretarul general | da (are acum și dreptul `cereri.gestioneaza`) | întreagă |
 | Registratura | nu vede registrele | fișa de înregistrare; poate stabili felul și redirecționa |
 | Funcționarul de compartiment | **cererile compartimentului său, cu raportul lor** | cererile compartimentului; stabilește felul, ține termenul (prelungește), răspunde, clasează, conexează, redirecționează |

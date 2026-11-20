@@ -59,7 +59,7 @@ export function persoaneDeProba(cate: number, samanta = 2026): PersoanaProba[] {
 export const TIPURI_DOCUMENTE: { tip: string; compartiment: string; zile: number }[] = [
   { tip: "Cerere de certificat de urbanism", compartiment: "urbanism", zile: 15 },
   { tip: "Petiție", compartiment: "administratie", zile: 30 },
-  { tip: "Cerere de informații publice (Legea 544/2001)", compartiment: "secretar", zile: 10 },
+  { tip: "Cerere de informații publice (Legea 544/2001)", compartiment: "administratie", zile: 10 },
   { tip: "Cerere de certificat de atestare fiscală", compartiment: "taxe", zile: 2 },
   { tip: "Declarație fiscală pentru clădiri", compartiment: "taxe", zile: 30 },
   { tip: "Cerere de adeverință din registrul agricol", compartiment: "agricol", zile: 10 },
