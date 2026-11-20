@@ -86,6 +86,8 @@ La sfârșitul sesiunii, **toate PR-urile sunt unite în `main`**.
 | Documentele și importurile sunt izolate pe entități în bază (securitate la nivel de rând) | migrarea `0004`, `docs/baza-de-date.md` |
 | Numele, localitatea și județul instituției sunt setări (`PETRU_INSTITUTIE`, `PETRU_LOCALITATE`, `PETRU_JUDET`); autorul nu le-a pus încă în Netlify | `docs/baza-de-date.md` (PR #13) |
 | Petru rămâne primăriei, ca donație; o eventuală aplicație viitoare a autorului va fi alta, pe alt cod și altă tehnologie | această pagină; forma juridică („donație” față de licența din `nota-de-autor.md`) e de lămurit cu juristul |
+| **Petru se construiește peste proiectul finanțat „Digitalizarea administrației publice locale”** (iulie 2026): îl completează și se leagă de el, nu îl dublează | această pagină |
+| Autorul confirmă propunerile din nota de cercetare, inclusiv ordinea: 0.1.x ceasul termenelor, petițiile, Legea 544; 0.2 șabloanele, avizele, consiliul local, dispozițiile, poarta și MOL; 0.3 bunurile și harta; 0.4 contractele, achizițiile și proiectele | `docs/cercetare/platforma-concurenta-si-lege.md` |
 | Nu ne limităm la consiliul local: Petru e un ecosistem pe un singur drum al actului (șabloane, termene pe lege, avize, proiecte cu status și prioritate, referate, achiziții, emitere, registratură, MOL), transparent în limita legii | `docs/cercetare/platforma-concurenta-si-lege.md` (PR #14, propunere) |
 
 ### Ce s-a construit
@@ -99,16 +101,15 @@ La sfârșitul sesiunii, **toate PR-urile sunt unite în `main`**.
 ### Întrebări deschise
 
 1. **Numele exacte ale coloanelor** din exportul registrului SOBIS (numai numele, fără rânduri cu date).
-2. **Ordinea:** 0.2 cu șabloanele, avizele, consiliul local, dispozițiile, poarta și MOL; sau achizițiile și proiectele înaintea hărții (0.3 și 0.4 inversate)?
-3. **Proiectul „Digitalizarea administrației publice locale”** (iulie 2026): ce platformă și ce module aduce.
-4. Celelalte întrebări pentru autor (A1–A8) și pentru jurist (J1–J12) din nota de cercetare.
-5. Rețeaua sesiunilor nu ajunge la `legislatie.just.ro`, `cdep.ro`, `sobis.ro`, `cityon.ro`: de permis în setările mediului, ca textele de lege să fie citite pe forma oficială.
-6. Rămân întrebările din sesiunea 1.
+2. **Proiectul de digitalizare, peste care construim:** ce furnizor, ce module și ce interfețe (export, API) aduce, ca Petru să se lege de el. Numai descrierea modulelor, fără date.
+3. Celelalte întrebări pentru autor (A1–A8) și pentru jurist (J1–J12) din nota de cercetare.
+4. Rețeaua sesiunilor nu ajunge la `legislatie.just.ro`, `cdep.ro`, `sobis.ro`, `cityon.ro`: de permis în setările mediului, ca textele de lege să fie citite pe forma oficială.
+5. Rămân întrebările din sesiunea 1.
 
 ### Pasul următor
 
-Autorul unește PR-urile #12, #13, #14 și răspunde la întrebările 2 și 3; apoi se construiește 0.2 (sau varianta aleasă), începând cu serviciile comune: ceasul termenelor, șabloanele și avizele.
+Autorul unește PR-urile #12, #13, #14. Se construiește 0.1.x (ceasul termenelor ca serviciu comun, petițiile, Legea 544), apoi 0.2, cu legăturile spre proiectul de digitalizare pe măsură ce se află ce aduce.
 
 ### Mesaj pentru sesiunea următoare
 
-> Citește `CLAUDE.md`, `docs/istoric.md`, `docs/arhitectura.md`, `docs/arhitectura-date.md`, `docs/registratura.md` și `docs/cercetare/platforma-concurenta-si-lege.md`. Continuăm cu ecosistemul: pornește de la răspunsurile mele la întrebările deschise din sesiunea 2 și construiește următoarea versiune, cu PR propriu.
+> Citește `CLAUDE.md`, `docs/istoric.md`, `docs/arhitectura.md`, `docs/arhitectura-date.md`, `docs/registratura.md` și `docs/cercetare/platforma-concurenta-si-lege.md`. Continuăm cu ecosistemul: construim peste proiectul de digitalizare, în ordinea confirmată; începe cu 0.1.x (ceasul termenelor, petițiile, Legea 544), cu PR propriu.
