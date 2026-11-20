@@ -24,11 +24,14 @@ export const ETICHETE: Record<Stare, string> = {
   arhivat: "Arhivat",
 };
 
-/** Trecerile permise. Publicarea e opțională: un act emis poate merge direct în arhivă. */
+/**
+ * Trecerile permise. Publicarea e opțională: un act emis poate merge direct în arhivă.
+ * Un document în lucru se poate clasa fără răspuns (de pildă, o petiție repetată), direct în arhivă.
+ */
 const TRECERI: Record<Stare, readonly Stare[]> = {
   inregistrat: ["repartizat"],
   repartizat: ["in_lucru", "repartizat"],
-  in_lucru: ["la_semnat", "repartizat"],
+  in_lucru: ["la_semnat", "repartizat", "arhivat"],
   la_semnat: ["emis", "in_lucru"],
   emis: ["publicat", "arhivat"],
   publicat: ["arhivat"],

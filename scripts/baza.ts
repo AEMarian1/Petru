@@ -13,6 +13,9 @@ import * as s from "../src/baza/schema";
 import { persoaneDeProba, TIPURI_DOCUMENTE, aleator } from "../src/baza/date-proba";
 import { COMPARTIMENTE } from "../src/date-proba/compartimente";
 import { ROLURI_PREDEFINITE } from "../src/domeniu/roluri-predefinite";
+import { caSistem } from "../src/baza/entitate";
+import { aziInRomania, dataLimita, recunoasteTermenul } from "../src/domeniu/registratura";
+import { adaugaZile } from "../src/domeniu/termene";
 
 const LACAT_REFACERE = 7_202_611;
 const MIGRARI = { migrationsFolder: "migrari", migrationsSchema: "petru_migrari", migrationsTable: "migrari" };
@@ -143,35 +146,61 @@ async function incarcaDateDeProba(db: Db) {
     .values(persoaneDeProba(40).map((p) => ({ ...p, esteProba: true })))
     .returning({ id: s.persoane.id });
 
+  await documenteDeProba(db, primaria!.id, salubrizare!.id, compId, pers.map((p) => p.id), registratura.id);
+}
+
+/**
+ * Registrul de probă: intrări cu date în ultimele două luni, ca să existe termene depășite, apropiate
+ * și în termen; câteva ieșiri legate de intrări, unele cu confirmare de primire. Totul e inventat.
+ */
+async function documenteDeProba(db: Db, primariaId: string, salubrizareId: string, compId: Map<string, string>, persoaneIds: string[], registraturaId: string) {
   const r = aleator(11);
-  const stari = s.stareDocument.enumValues;
-  const an = 2026;
-  for (let i = 0; i < 60; i++) {
-    const t = TIPURI_DOCUMENTE[i % TIPURI_DOCUMENTE.length]!;
-    const zi = new Date(Date.UTC(an, 8, 1) + Math.floor(r() * 80) * 86_400_000);
-    const termen = new Date(zi.getTime() + t.zile * 86_400_000);
-    const [doc] = await db
-      .insert(s.documente)
-      .values({
-        an,
-        numar: 1001 + i,
-        dataInregistrare: zi,
-        tip: t.tip,
-        continut: `${t.tip} (probă)`,
-        emitentId: pers[i % pers.length]!.id,
-        compartimentId: compId.get(t.compartiment),
-        stare: stari[Math.floor(r() * 5)]!,
-        termen: termen.toISOString().slice(0, 10),
-      })
-      .returning({ id: s.documente.id });
-    await db.insert(s.jurnal).values({
-      utilizatorId: registratura.id,
-      actiune: "a înregistrat",
-      entitate: "document",
-      entitateId: doc!.id,
-      detalii: { numar: 1001 + i, proba: true },
+  const azi = aziInRomania();
+  const zi = (inUrma: number) => adaugaZile(azi, -inUrma, "calendaristice");
+  const canale = s.canalIntrare.enumValues;
+  await caSistem(db, async (tx) => {
+    let numar = 1001;
+    for (let i = 0; i < 60; i++) {
+      const t = TIPURI_DOCUMENTE[i % TIPURI_DOCUMENTE.length]!;
+      const data = zi(Math.floor(r() * 60));
+      const { termen: tl, recunoscut } = recunoasteTermenul(t.tip, t.tip);
+      const termen = dataLimita(data, tl);
+      // Starea: cele cu termenul trecut sunt de obicei rezolvate; câteva rămân în urmă (termene depășite).
+      const zar = r();
+      const trecut = termen < azi;
+      const stare = trecut
+        ? (zar < 0.08 ? "repartizat" : zar < 0.16 ? "in_lucru" : zar < 0.2 ? "la_semnat" : zar < 0.92 ? "emis" : "arhivat")
+        : (zar < 0.12 ? "inregistrat" : zar < 0.4 ? "repartizat" : zar < 0.7 ? "in_lucru" : zar < 0.85 ? "la_semnat" : "emis");
+      const [doc] = await tx
+        .insert(s.documente)
+        .values({
+          entitateId: primariaId, an: Number(data.slice(0, 4)), numar: numar++, dataInregistrare: new Date(`${data}T09:00:00Z`),
+          sursa: i % 3 === 0 ? "petru" : "import", canal: canale[Math.floor(r() * canale.length)]!,
+          tip: t.tip, continut: `${t.tip} (probă)`, emitentId: persoaneIds[i % persoaneIds.length]!,
+          compartimentId: stare === "inregistrat" ? null : compId.get(t.compartiment), stare,
+          termen, termenCheie: tl.cheie, termenRecunoscut: recunoscut,
+        })
+        .returning({ id: s.documente.id, an: s.documente.an, numar: s.documente.numar });
+      await tx.insert(s.jurnal).values({ utilizatorId: registraturaId, actiune: "a înregistrat", entitate: "document", entitateId: doc!.id, detalii: { numar: doc!.numar, proba: true } });
+      if (stare === "emis" || stare === "arhivat") {
+        const dataIesire = adaugaZile(data, Math.min(tl.zile, 1 + Math.floor(r() * tl.zile)), "calendaristice");
+        const iesireData = dataIesire > azi ? azi : dataIesire;
+        const mod = (["posta", "email", "ghiseu", "platforma"] as const)[Math.floor(r() * 4)]!;
+        await tx.insert(s.documente).values({
+          entitateId: primariaId, an: Number(iesireData.slice(0, 4)), numar: numar++, dataInregistrare: new Date(`${iesireData}T13:00:00Z`),
+          directie: "iesire", sursa: "import", tip: `Răspuns la nr. ${doc!.numar}/${doc!.an}`, continut: `Răspuns: ${t.tip} (probă)`,
+          compartimentId: compId.get(t.compartiment), raspunsLaId: doc!.id, destinatarText: "Destinatar (probă)",
+          modExpediere: mod, expediatLa: iesireData, confirmatLa: r() < 0.6 ? iesireData : null, stare: "emis",
+        });
+      }
+    }
+    // O intrare a serviciului de salubrizare: nu trebuie să se vadă din primărie (izolarea entităților).
+    await tx.insert(s.documente).values({
+      entitateId: salubrizareId, an: Number(azi.slice(0, 4)), numar: 1, dataInregistrare: new Date(`${zi(5)}T09:00:00Z`),
+      tip: "Cerere de recipient nou", continut: "Cerere de recipient nou (probă)", emitentText: "Exemplu Ana (probă)",
+      compartimentId: compId.get("salubrizare-colectare"), stare: "repartizat", termen: adaugaZile(zi(5), 30, "calendaristice"), termenCheie: "petitie",
     });
-  }
+  });
 }
 
 main().catch((e) => {

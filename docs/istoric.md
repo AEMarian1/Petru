@@ -72,3 +72,31 @@ La sfârșitul sesiunii, **toate PR-urile sunt unite în `main`**.
 ### Mesaj pentru sesiunea următoare
 
 > Citește `CLAUDE.md`, `docs/istoric.md`, `docs/arhitectura.md`, `docs/arhitectura-date.md`, `docs/nevoi.md` și `docs/birouri.md`. Continuăm cu biroul Registratura: întreabă-mă cum lucrează azi și construiește modulul pe baza răspunsurilor, cu PR propriu.
+
+## Sesiunea 2 — 20.11.2026
+
+### Ce s-a hotărât
+
+| Hotărârea | Unde e scrisă |
+|---|---|
+| Registratura azi: intră hârtie, poștă, e-mail, platforme; registru unic pe an; repartizare directă de registratură; ieșirea cu număr nou; vede biroul și conducerea | `docs/registratura.md`, `docs/birouri.md` |
+| La 0.1, **registrul oficial rămâne în SOBIS**; Petru importă exportul CSV și adaugă urmărirea | `docs/registratura.md` |
+| Mersul documentului îl scriu birourile în Petru; registratura scrie ieșirea, expedierea și confirmarea | `docs/registratura.md` |
+| Termenele se socotesc după lege, pe tipul documentului | `src/domeniu/registratura.ts` |
+| Documentele și importurile sunt izolate pe entități în bază (securitate la nivel de rând) | migrarea `0004`, `docs/baza-de-date.md` |
+
+### Ce s-a construit
+
+| PR | Ce |
+|---|---|
+| (acest PR) | Registratura 0.1: importul exportului SOBIS, termenele, mersul documentului, ieșirea și confirmarea, panoul; izolarea entităților în bază |
+
+### Întrebări deschise
+
+1. **Numele exacte ale coloanelor** din exportul registrului SOBIS (numai numele, fără rânduri cu date).
+2. Codificarea exportului (UTF-8 sau Windows-1250) și separatorul; Petru le recunoaște pe amândouă.
+3. Rămân întrebările din sesiunea 1.
+
+### Pasul următor
+
+Autorul aduce numele coloanelor exportului; apoi biroul următor din `docs/birouri.md`.
