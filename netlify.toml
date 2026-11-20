@@ -16,3 +16,8 @@
 
 [context.branch-deploy.environment]
   PETRU_MEDIU = "previzualizare"
+
+# Partea de server a lui Next.js pe Netlify (paginile se generează la cerere).
+# Fără ea, Netlify servește directorul .next ca pe un site static și răspunde „Page not found”.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
