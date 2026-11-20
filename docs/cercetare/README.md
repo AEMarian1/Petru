@@ -7,5 +7,6 @@ Note scoase din sursele publice date de autor, după excepția din `CLAUDE.md` (
 | Site-ul primăriei (`primaria-sanpetru.ro`) | compartimentele, serviciile, formularele, transparența | [structura-primariei.md](structura-primariei.md) |
 | Monitorul Oficial Local (`sanpetru.cityon.ro`) | secțiunile, ședințele și numărul de hotărâri pe ani | [monitorul-oficial-local.md](monitorul-oficial-local.md) |
 | Execuțiile bugetare (`executii-bugetare.g4d.ro`, din rapoartele ANAF) | veniturile și cheltuielile realizate, 2020–2026 | [buget.md](buget.md) |
+| Surse publice generale: site-urile furnizorilor, presa, legislația, rapoarte OCDE, UE, Curtea de Conturi, studii (citite la 20.11.2026) | concurența, cadrul legal, transparența și clipurile cu informații trunchiate, bunele practici; propunerea de ecosistem pentru Petru | [platforma-concurenta-si-lege.md](platforma-concurenta-si-lege.md) |
 
 Citite la 19.11.2026. Nu s-au citit: paginile cu nume de persoane (consilieri, angajați, autori de articole), declarațiile de avere și de interese, publicațiile de căsătorie, ofertele de vânzare cu nume, anunțurile individuale de urbanism și de taxe.
