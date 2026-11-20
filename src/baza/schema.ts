@@ -18,7 +18,7 @@ export const tipPersoana = petru.enum("tip_persoana", ["fizica", "juridica", "in
 export const directieDocument = petru.enum("directie_document", ["intrare", "iesire", "intern"]);
 export const sursaDocument = petru.enum("sursa_document", ["petru", "import"]);
 export const canalIntrare = petru.enum("canal_intrare", ["ghiseu", "posta", "email", "platforma"]);
-export const modExpediere = petru.enum("mod_expediere", ["posta", "email", "ghiseu", "platforma"]);
+export const modExpediere = petru.enum("mod_expediere", ["posta", "email", "ghiseu", "platforma", "curier"]);
 export const stareImport = petru.enum("stare_import", ["verificat", "aplicat", "renuntat"]);
 export const felCerere = petru.enum("fel_cerere", ["petitie", "informatii_publice"]);
 export const solutieCerere = petru.enum("solutie_cerere", [
@@ -26,6 +26,11 @@ export const solutieCerere = petru.enum("solutie_cerere", [
 ]);
 export const tipSolicitant = petru.enum("tip_solicitant", ["fizica", "juridica", "nespecificat"]);
 export const solutieReclamatie = petru.enum("solutie_reclamatie", ["admisa", "respinsa"]);
+export const tipSedinta = petru.enum("tip_sedinta", ["ordinara", "extraordinara", "de_indata"]);
+export const initiatorProiect = petru.enum("initiator_proiect", ["primar", "viceprimar", "consilier", "cetateni"]);
+export const rezultatProiect = petru.enum("rezultat_proiect", ["aprobat", "respins", "retras"]);
+export const majoritateVot = petru.enum("majoritate_vot", ["simpla", "absoluta", "doua_treimi"]);
+export const sensAviz = petru.enum("sens_aviz", ["favorabil", "favorabil_cu_amendamente", "nefavorabil"]);
 
 /** Setările instituției: numele, localitatea, județul. Un singur rând. În cod nu apare nicio localitate. */
 export const institutie = petru.table("institutie", {
@@ -211,7 +216,9 @@ export const ceasuri = petru.table(
   {
     id: id(),
     entitateId: uuid("entitate_id").notNull().references(() => entitati.id),
-    documentId: uuid("document_id").notNull().references(() => documente.id),
+    /** Ceasul ține de un document sau de o ședință a consiliului local (termenul procesului-verbal); exact unul. */
+    documentId: uuid("document_id").references(() => documente.id),
+    sedintaId: uuid("sedinta_id").references((): AnyPgColumn => sedinte.id),
     regula: text("regula").notNull(),
     pornitLa: date("pornit_la").notNull(),
     termenInitial: date("termen_initial").notNull(),
@@ -229,7 +236,7 @@ export const ceasuri = petru.table(
     creatLa: creatLa(),
     actualizatLa: timestamp("actualizat_la", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [unique("ceasuri_document_regula").on(t.documentId, t.regula)],
+  (t) => [unique("ceasuri_document_regula").on(t.documentId, t.regula), unique("ceasuri_sedinta_regula").on(t.sedintaId, t.regula)],
 );
 
 /**
@@ -255,6 +262,132 @@ export const cereri = petru.table("cereri", {
   plangereInstanta: boolean("plangere_instanta").notNull().default(false),
   creatLa: creatLa(),
   actualizatLa: timestamp("actualizat_la", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
+ * Consiliul local (0.2). Comisiile de specialitate sunt setări ale entității (numărul și domeniile lor).
+ * Ședințele, proiectele, avizele și propunerile sunt izolate pe entități în bază (migrarea 0007).
+ */
+export const comisii = petru.table(
+  "comisii",
+  {
+    id: id(),
+    entitateId: uuid("entitate_id").notNull().references(() => entitati.id),
+    numar: integer("numar").notNull(),
+    nume: text("nume").notNull(),
+    domeniu: text("domeniu"),
+    activa: boolean("activa").notNull().default(true),
+    creatLa: creatLa(),
+  },
+  (t) => [unique("comisii_entitate_numar").on(t.entitateId, t.numar)],
+);
+
+/** Ședința: convocarea, prezența și procesul-verbal. Ordinea de zi sunt proiectele legate de ședință. */
+export const sedinte = petru.table("sedinte", {
+  id: id(),
+  entitateId: uuid("entitate_id").notNull().references(() => entitati.id),
+  data: date("data").notNull(),
+  tip: tipSedinta("tip").notNull(),
+  /** Câți consilieri sunt în funcție la data ședinței: baza cvorumului și a majorităților. */
+  consilieriInFunctie: integer("consilieri_in_functie").notNull(),
+  /** Convocarea: data, numărul convocatorului sau al dispoziției de convocare, trimiterea materialelor. */
+  convocatLa: date("convocat_la"),
+  convocare: text("convocare"),
+  materialeTrimiseLa: date("materiale_trimise_la"),
+  prezenti: integer("prezenti"),
+  /** Funcția, nu persoana: „consilierul local ales președinte de ședință”. */
+  presedinte: text("presedinte"),
+  /** Procesul-verbal: redactat de Administrație publică, semnat de președinte și de secretarul general, aprobat în ședința următoare. */
+  pvRedactatLa: date("pv_redactat_la"),
+  pvSemnatLa: date("pv_semnat_la"),
+  pvAprobatLa: date("pv_aprobat_la"),
+  pvAprobatInSedintaId: uuid("pv_aprobat_in_sedinta_id").references((): AnyPgColumn => sedinte.id),
+  pvPublicatLa: date("pv_publicat_la"),
+  creatLa: creatLa(),
+  actualizatLa: timestamp("actualizat_la", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
+ * Proiectul de hotărâre și, după vot, hotărârea. Proiectul e un document din registrul de intrare-ieșire
+ * (`document_id`), deci merge pe drumul actului; aici stau ce e propriu consiliului: numărul din registrul
+ * proiectelor, inițiatorul, materialele, Legea 52, ordinea de zi, votul, numărul hotărârii, comunicarea
+ * la prefect și publicarea.
+ */
+export const proiecteHotarare = petru.table(
+  "proiecte_hotarare",
+  {
+    id: id(),
+    entitateId: uuid("entitate_id").notNull().references(() => entitati.id),
+    documentId: uuid("document_id").notNull().unique().references(() => documente.id),
+    an: integer("an").notNull(),
+    numar: integer("numar").notNull(),
+    titlu: text("titlu").notNull(),
+    initiator: initiatorProiect("initiator").notNull(),
+    /** Compartimentul de specialitate, care redactează raportul. */
+    compartimentId: uuid("compartiment_id").notNull().references(() => compartimente.id),
+    normativ: boolean("normativ").notNull(),
+    majoritate: majoritateVot("majoritate").notNull().default("simpla"),
+    referatLa: date("referat_la"),
+    raportLa: date("raport_la"),
+    avizLegalitateLa: date("aviz_legalitate_la"),
+    avizLegalitateDe: uuid("aviz_legalitate_de").references(() => utilizatori.id),
+    /** Legea 52/2003: anunțul (data și unde), sau excepția de urgență cu motivul ei. */
+    anuntatLa: date("anuntat_la"),
+    anuntUnde: text("anunt_unde"),
+    exceptieUrgenta: text("exceptie_urgenta"),
+    sedintaId: uuid("sedinta_id").references(() => sedinte.id),
+    ordine: integer("ordine"),
+    rezultat: rezultatProiect("rezultat"),
+    rezultatLa: date("rezultat_la"),
+    votPentru: integer("vot_pentru"),
+    votContra: integer("vot_contra"),
+    votAbtineri: integer("vot_abtineri"),
+    /** Registrul hotărârilor: numerotare pe an, ținută de secretarul general, separat de dispoziții. */
+    anHcl: integer("an_hcl"),
+    numarHcl: integer("numar_hcl"),
+    /** Comunicarea la prefect: ieșirea din registru (adresa de înaintare), cu dovada primirii pe ea. */
+    prefectIesireId: uuid("prefect_iesire_id").references((): AnyPgColumn => documente.id),
+    /** Poarta de publicare: aprobarea, copia anonimizată, apoi publicarea (făcută de om, pe platforma MOL). */
+    publicareAprobataLa: date("publicare_aprobata_la"),
+    publicareAprobataDe: uuid("publicare_aprobata_de").references(() => utilizatori.id),
+    copieAnonimizataLa: date("copie_anonimizata_la"),
+    copieAnonimizataDe: uuid("copie_anonimizata_de").references(() => utilizatori.id),
+    publicatLa: date("publicat_la"),
+    publicatUnde: text("publicat_unde"),
+    creatLa: creatLa(),
+    actualizatLa: timestamp("actualizat_la", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [unique("proiecte_entitate_an_numar").on(t.entitateId, t.an, t.numar), unique("hotarari_entitate_an_numar").on(t.entitateId, t.anHcl, t.numarHcl)],
+);
+
+/** Avizele comisiilor: rândul apare la sesizare; sensul și data, la aviz. */
+export const avizeComisii = petru.table(
+  "avize_comisii",
+  {
+    id: id(),
+    entitateId: uuid("entitate_id").notNull().references(() => entitati.id),
+    proiectId: uuid("proiect_id").notNull().references(() => proiecteHotarare.id),
+    comisieId: uuid("comisie_id").notNull().references(() => comisii.id),
+    sesizataLa: date("sesizata_la").notNull(),
+    sens: sensAviz("sens"),
+    data: date("data"),
+    amendamente: text("amendamente"),
+    creatLa: creatLa(),
+  },
+  (t) => [unique("avize_proiect_comisie").on(t.proiectId, t.comisieId)],
+);
+
+/** Propunerile primite la un proiect anunțat pe Legea 52: numai rezumatul, fără datele celui care propune. */
+export const propuneriL52 = petru.table("propuneri_l52", {
+  id: id(),
+  entitateId: uuid("entitate_id").notNull().references(() => entitati.id),
+  proiectId: uuid("proiect_id").notNull().references(() => proiecteHotarare.id),
+  primitaLa: date("primita_la").notNull(),
+  numarInregistrare: text("numar_inregistrare"),
+  rezumat: text("rezumat").notNull(),
+  /** Preluată în proiect (true), nepreluată (false), încă neanalizată (null). */
+  preluata: boolean("preluata"),
+  creatLa: creatLa(),
 });
 
 /** Jurnalul: se poate doar adăuga. Modificarea și ștergerea sunt blocate în bază (migrarea 0001). */

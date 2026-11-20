@@ -8,6 +8,7 @@ import { compartimente, utilizatori } from "@/baza/schema";
 import { fisaDocumentului } from "@/baza/registratura";
 import { ceasurileDocumentului } from "@/baza/ceasuri";
 import { fisaCererii } from "@/baza/cereri";
+import { proiectulDocumentului } from "@/baza/consiliu";
 import { ETICHETE_SOLUTIE, semnaturiLipsa, SOLUTII_LA_RASPUNS, type Inchidere } from "@/domeniu/cereri";
 import { Ceasuri } from "./Ceasuri";
 import { Cererea } from "./Cererea";
@@ -31,7 +32,7 @@ export default async function Fisa({ params }: { params: Promise<{ id: string }>
   const date = await inEntitate(b, u.entitateId, async (tx) => {
     const fisa = await fisaDocumentului(tx, id, vedere);
     if (!fisa) return null;
-    return { fisa, ceasuri: await ceasurileDocumentului(tx, id), cerere: await fisaCererii(tx, id) };
+    return { fisa, ceasuri: await ceasurileDocumentului(tx, id), cerere: await fisaCererii(tx, id), proiect: await proiectulDocumentului(tx, id) };
   });
   if (!date) notFound();
   const { fisa } = date;
@@ -45,7 +46,9 @@ export default async function Fisa({ params }: { params: Promise<{ id: string }>
   const sarit = d.stare === "arhivat" && intrare && fisa.iesiri.length === 0;
   const comp = await b.select({ id: compartimente.id, nume: compartimente.nume }).from(compartimente).where(eq(compartimente.entitateId, u.entitateId)).orderBy(asc(compartimente.nume));
 
-  const pasi = intrare
+  // Proiectul de hotărâre e în registru, dar pașii lui (raport, avize, vot, prefect) se fac din Consiliul local.
+  const proiect = date.proiect;
+  const pasi = intrare && !proiect
     ? pasiiPosibili(d.stare).filter((p) => PASI[p].drept.some((x) => u.poate(x, PASI[p].peCompartiment ? d.compartimentId : undefined)))
     : [];
   const poateConfirma = u.poate("documente.inregistreaza") || u.poate("documente.rezolva", d.compartimentId);
@@ -58,7 +61,7 @@ export default async function Fisa({ params }: { params: Promise<{ id: string }>
   const numeSemnatari = semnatari.length ? await b.select({ id: utilizatori.id, nume: utilizatori.numeAfisat }).from(utilizatori).where(inArray(utilizatori.id, semnatari)) : [];
   const cine = (id: string | null) => numeSemnatari.find((x) => x.id === id)?.nume;
   const lipsaSemnaturi = cerere ? semnaturiLipsa(d) : [];
-  const arataSemnaturile = intrare && (d.stare === "la_semnat" || !!d.semnatLa || !!d.contrasemnatLa);
+  const arataSemnaturile = intrare && !date.proiect && (d.stare === "la_semnat" || !!d.semnatLa || !!d.contrasemnatLa);
   const inchideri: Inchidere[] = gestioneaza || rezolva ? ["redirectionata", "conexata", "clasata"] : u.poate("documente.inregistreaza") ? ["redirectionata"] : [];
 
   return (
@@ -70,6 +73,7 @@ export default async function Fisa({ params }: { params: Promise<{ id: string }>
       </p>
       <h1>{d.tip}</h1>
       <p>{d.continut}</p>
+      {proiect && <p className="nota">Proiectul de hotărâre nr. {proiect.numar}/{proiect.an}: pașii lui se fac din <Link href={`/consiliu/proiecte/${proiect.id}`}>Consiliul local</Link>.</p>}
 
       <dl className="fisa">
         {intrare ? (<><dt>Emitent</dt><dd>{d.emitentText ?? fisa.emitentPersoana ?? "—"}</dd></>) : (<><dt>Destinatar</dt><dd>{d.destinatarText ?? "—"}</dd></>)}
@@ -134,8 +138,8 @@ export default async function Fisa({ params }: { params: Promise<{ id: string }>
 
       {intrare && (
         <>
-          <h2>Răspunsul</h2>
-          {fisa.iesiri.length === 0 && <p className="slab">Încă nu a plecat niciun răspuns.</p>}
+          <h2>{proiect ? "Ieșirile (comunicarea hotărârii)" : "Răspunsul"}</h2>
+          {fisa.iesiri.length === 0 && <p className="slab">{proiect ? "Nimic încă." : "Încă nu a plecat niciun răspuns."}</p>}
           {fisa.iesiri.map((x) => (
             <section key={x.id} className="card" style={{ marginBottom: "0.8rem" }}>
               <p>
@@ -170,10 +174,10 @@ export default async function Fisa({ params }: { params: Promise<{ id: string }>
       )}
 
       {intrare && (
-        <Ceasuri ceasuri={date.ceasuri} azi={azi} poatePropune={gestioneaza || rezolva} poateHotari={u.poate("documente.semneaza")} />
+        <Ceasuri ceasuri={date.ceasuri} azi={azi} poatePropune={!proiect && (gestioneaza || rezolva)} poateHotari={!proiect && u.poate("documente.semneaza")} />
       )}
 
-      {intrare && (cerere || u.poate("documente.inregistreaza") || gestioneaza || rezolva) && (
+      {intrare && !proiect && (cerere || u.poate("documente.inregistreaza") || gestioneaza || rezolva) && (
         <Cererea
           docId={d.id} stare={d.stare} dataInregistrare={d.dataInregistrare.toISOString().slice(0, 10)} fisa={date.cerere} azi={azi} anul={d.an}
           drepturi={{ felul: gestioneaza || rezolva || u.poate("documente.inregistreaza"), inchideri, reclamatia: gestioneaza }}

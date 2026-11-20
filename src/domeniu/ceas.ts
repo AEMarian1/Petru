@@ -40,6 +40,25 @@ export function pornesteCeasul(cheie: string, pornitLa: string): Ceas {
   return { regula: cheie, pornitLa, termenInitial: termen, termen, prelungitLa: null, opritLa: null };
 }
 
+/**
+ * Starea unui termen de așteptare (`sens: "asteptare"`): „in_asteptare” până la termen inclusiv,
+ * „indeplinit” după el. De pildă, votul pe un proiect normativ vine numai după cele 30 de zile
+ * lucrătoare de la anunț (Legea 52/2003).
+ */
+export type StareAsteptare = "in_asteptare" | "indeplinit";
+
+export function esteAsteptare(cheie: string): boolean {
+  return regula(cheie).sens === "asteptare";
+}
+
+/**
+ * S-a împlinit așteptarea la data `la`? Termenul e ultima zi a așteptării: actul se poate face numai
+ * după el (calcul prudent: „cu cel puțin 30 de zile înainte” lasă 30 de zile întregi între anunț și vot).
+ */
+export function stareaAsteptarii(c: Pick<Ceas, "termen">, la: string): StareAsteptare {
+  return la > c.termen ? "indeplinit" : "in_asteptare";
+}
+
 /** Starea ceasului față de ziua de azi. */
 export function stareaCeasului(c: Pick<Ceas, "termen" | "opritLa">, azi: string): StareCeas {
   if (c.opritLa) return "oprit";

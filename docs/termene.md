@@ -32,6 +32,19 @@ Cum se socotește:
 
 Petru nu lasă prelungirea după limita ei, a doua prelungire sau prelungirea unui termen pe care legea nu-l prelungește. Prelungirea cere motivul și ține minte cum a fost înștiințat solicitantul.
 
+## Regulile consiliului local (0.2)
+
+Vezi [`consiliul-local.md`](consiliul-local.md). Toate sunt **de confirmat de jurist**.
+
+| Regula | Termenul | Sensul | Temeiul |
+|---|---|---|---|
+| Comunicarea hotărârii la prefect (`hcl-prefect`) | 10 zile lucrătoare de la adoptare | limită | Codul administrativ, art. 197 alin. (1) (J1, J19) |
+| Publicarea procesului-verbal (`pv-publicare`) | 3 zile lucrătoare de la aprobare | limită | Codul administrativ, art. 138 (J20) |
+| Anunțul pe Legea 52 (`l52-anunt`) | 30 de zile lucrătoare de la anunț | **așteptare**: votul vine numai după | Legea 52/2003, art. 7 alin. (2) (J21) |
+| Propunerile pe Legea 52 (`transparenta-52`) | 10 zile de la anunț | așteptare | Legea 52/2003, art. 7 |
+
+Un termen de **așteptare** nu se depășește: până la el actul nu se poate face, după el condiția e îndeplinită. Ceasul ține acum de un document sau de o ședință (procesul-verbal).
+
 ## Registrele petițiilor și ale cererilor 544
 
 O cerere e un document din registrul de intrare-ieșire, nu un registru paralel. Tabelul `petru.cereri` ține ce e specific: felul, solicitantul, soluția, redirecționarea, conexarea, reclamația și plângerea în instanță.
@@ -99,6 +112,6 @@ Structura exactă a raportului semestrial (OG 27/2002) și a raportului anual (a
 ## Ce rămâne
 
 - Regulile de termen stau azi în cod, cu temei și „de confirmat”. Când juristul le confirmă, se mută în setările entității, ca să se poată schimba fără o versiune nouă.
-- Ceasul pentru comunicarea hotărârilor și a dispozițiilor la prefect, pentru Legea 52 și pentru avize (0.2).
+- ~~Ceasul pentru comunicarea hotărârilor la prefect și pentru Legea 52~~: făcut în 0.2 (consiliul local). Rămân dispozițiile și avizele externe.
 - Secțiunea de informații publice din oficiu (art. 5 din Legea 544), generată din registre (0.2, împreună cu poarta de publicare).
 - Notificările (e-mail) la termenele care se apropie.
