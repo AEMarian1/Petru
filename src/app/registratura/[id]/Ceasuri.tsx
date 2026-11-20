@@ -6,6 +6,14 @@ import { hotarastePrelungirea, propunePrelungireaTermenului, respingePrelungirea
 
 const ETICHETE_CEAS = { depasit: "Termen depășit", aproape: "Scade în curând", in_termen: "În termen", oprit: "Oprit" } as const;
 
+/** Motivele obișnuite pentru care funcționarul cere prelungirea; se poate scrie și altul. */
+const MOTIVE_PRELUNGIRE = [
+  "volumul mare de documente sau informații solicitate",
+  "încărcarea compartimentului în această perioadă",
+  "cere o cercetare mai amănunțită sau la fața locului",
+  "informația trebuie adunată din mai multe compartimente",
+];
+
 type Rand = RandCeas & { propusDeNume: string | null; prelungitDeNume: string | null };
 
 /**
@@ -99,7 +107,8 @@ export function Ceasuri({ ceasuri, azi, poatePropune, poateHotari }: { ceasuri: 
             {!poateHotari && poatePropune && poatePropunePrelungirea(c, r.prelungirePropusaLa, azi).da && termenNou && (
               <form action={propunePrelungireaTermenului} className="rand-formular">
                 <input type="hidden" name="ceas" value={r.id} />
-                <div><label htmlFor={`prel-motiv-${r.id}`}>Motivul</label><input id={`prel-motiv-${r.id}`} name="motiv" type="text" required placeholder="de pildă: cere o cercetare la fața locului" /></div>
+                <div><label htmlFor={`prel-motiv-${r.id}`}>Motivul</label><input id={`prel-motiv-${r.id}`} name="motiv" type="text" required list={`motive-${r.id}`} placeholder="alegeți sau scrieți motivul" /></div>
+                <datalist id={`motive-${r.id}`}>{MOTIVE_PRELUNGIRE.map((m) => <option key={m} value={m} />)}</datalist>
                 <button className="buton buton-mic" type="submit">Propune conducătorului prelungirea până la {dataRo(termenNou)}</button>
               </form>
             )}

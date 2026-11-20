@@ -39,7 +39,7 @@ O cerere e un document din registrul de intrare-ieșire, nu un registru paralel.
 | Pasul | Cine | Ce face Petru |
 |---|---|---|
 | **Felul** (petiție / 544 / niciuna) | compartimentul care lucrează documentul, registratura, responsabilul, secretarul general | La import, felul se pune singur când tipul e recunoscut sigur. Altfel, se alege din fișă și ceasul pornește după legea aleasă. Felul se schimbă numai până la soluție și până la prelungire. |
-| **Prelungirea** | **propune** compartimentul (sau responsabilul), cu motivul; **hotărăște** conducătorul instituției | Termenul se mută numai la hotărâre, după regulile de mai sus; data hotărârii trebuie să fie în limita legii. Conducătorul poate respinge propunerea. Propunerile așteaptă pe panoul conducătorului. |
+| **Prelungirea** | **propune** funcționarul care lucrează cererea (sau responsabilul), cu motivul: de pildă volumul mare de acte cerute sau încărcarea compartimentului în acea perioadă; **hotărăște** conducătorul instituției | Termenul se mută numai la hotărâre, după regulile de mai sus; data hotărârii trebuie să fie în limita legii. Conducătorul poate respinge propunerea. Propunerile așteaptă pe panoul conducătorului. |
 | **Redirecționarea** | registratura, biroul, responsabilul | instituția competentă și, opțional, numărul adresei de ieșire. Ieșirea se leagă de cerere. După 5 zile se marchează „după cele 5 zile”. |
 | **Conexarea** | biroul, responsabilul | Aceeași problemă, același solicitant: cererea se leagă de cererea de bază și primește același răspuns. Se conexează numai cereri de același fel. |
 | **Clasarea** | biroul, responsabilul | Cu motiv: de pildă, o petiție anonimă sau fără date de identificare (OG 27/2002, art. 7), ori trimisă din nou după răspuns. |
@@ -93,6 +93,7 @@ Structura exactă a raportului semestrial (OG 27/2002) și a raportului anual (a
 | J14 | Termenul de 5 zile pentru redirecționare: OG 27/2002, art. 6 alin. (3) și normele Legii 544. Curge de la înregistrare? |
 | J15 | Prelungirea petiției (OG 27/2002, art. 9): cere o înștiințare a petiționarului și până când se hotărăște? |
 | J16 | Reclamația administrativă pe Legea 544 (art. 21–22): 30 de zile pentru depunere și 15 zile pentru răspuns, în forma la zi? |
+| J18 | Funcționarul cere prelungirea și pentru volumul mare de acte cerute sau pentru încărcarea compartimentului. Sunt temeiuri suficiente? OG 27/2002, art. 9 vorbește de „cercetare mai amănunțită”, iar Legea 544, art. 7, de durata necesară identificării și difuzării informației. Petru nu blochează motivul; îl scrie în fișă și în jurnal. |
 | J17 | Lista sărbătorilor legale din Codul muncii, art. 139, în forma la zi. |
 
 ## Ce rămâne
