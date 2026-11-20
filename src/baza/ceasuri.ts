@@ -12,6 +12,12 @@ import { opreste, pornesteCeasul, poatePropunePrelungirea, prelungeste, type Cea
 
 export type RandCeas = typeof ceasuri.$inferSelect;
 
+/** Prelungirea și propunerea privesc numai ceasurile documentelor (nu pe cel al procesului-verbal al unei ședințe). */
+function documentulCeasului(r: RandCeas): string {
+  if (!r.documentId) throw new Error("Ceasul nu ține de un document.");
+  return r.documentId;
+}
+
 export function caCeas(r: RandCeas): Ceas {
   return { regula: r.regula, pornitLa: r.pornitLa, termenInitial: r.termenInitial, termen: r.termen, prelungitLa: r.prelungitLa, opritLa: r.opritLa };
 }
@@ -64,8 +70,8 @@ export async function propunePrelungirea(tx: Tranzactie, a: { ceasId: string; az
   const v = poatePropunePrelungirea(caCeas(r), r.prelungirePropusaLa, a.azi);
   if (!v.da) throw new Error(v.motiv);
   await tx.update(ceasuri).set({ prelungirePropusaLa: a.azi, prelungirePropusaDe: a.utilizatorId, prelungireMotiv: a.motiv, actualizatLa: new Date() }).where(eq(ceasuri.id, r.id));
-  await tx.insert(jurnal).values({ utilizatorId: a.utilizatorId, actiune: "a propus prelungirea termenului", entitate: "document", entitateId: r.documentId, detalii: { regula: r.regula, motiv: a.motiv } });
-  return r.documentId;
+  await tx.insert(jurnal).values({ utilizatorId: a.utilizatorId, actiune: "a propus prelungirea termenului", entitate: "document", entitateId: documentulCeasului(r), detalii: { regula: r.regula, motiv: a.motiv } });
+  return documentulCeasului(r);
 }
 
 /** Conducătorul nu aprobă propunerea: termenul rămâne, propunerea se șterge (urma rămâne în jurnal). */
@@ -73,8 +79,8 @@ export async function respingePropunerea(tx: Tranzactie, a: { ceasId: string; ut
   const [r] = await tx.select().from(ceasuri).where(eq(ceasuri.id, a.ceasId)).for("update");
   if (!r?.prelungirePropusaLa || r.prelungitLa) throw new Error("Nu există o propunere de prelungire.");
   await tx.update(ceasuri).set({ prelungirePropusaLa: null, prelungirePropusaDe: null, prelungireMotiv: null, actualizatLa: new Date() }).where(eq(ceasuri.id, r.id));
-  await tx.insert(jurnal).values({ utilizatorId: a.utilizatorId, actiune: "nu a aprobat prelungirea termenului", entitate: "document", entitateId: r.documentId, detalii: { motivPropus: r.prelungireMotiv } });
-  return r.documentId;
+  await tx.insert(jurnal).values({ utilizatorId: a.utilizatorId, actiune: "nu a aprobat prelungirea termenului", entitate: "document", entitateId: documentulCeasului(r), detalii: { motivPropus: r.prelungireMotiv } });
+  return documentulCeasului(r);
 }
 
 /**
@@ -88,10 +94,10 @@ export async function prelungesteCeasul(tx: Tranzactie, a: { ceasId: string; la:
   if (!motiv) throw new Error("Scrieți motivul prelungirii.");
   const nou = prelungeste(caCeas(r), a.la);
   await tx.update(ceasuri).set({ termen: nou.termen, prelungitLa: a.la, prelungitDe: a.utilizatorId, prelungireMotiv: motiv, instiintare: a.instiintare, actualizatLa: new Date() }).where(eq(ceasuri.id, r.id));
-  const [doc] = await tx.select({ termenCheie: documente.termenCheie }).from(documente).where(eq(documente.id, r.documentId));
-  if (doc?.termenCheie === r.regula) await tx.update(documente).set({ termen: nou.termen, actualizatLa: new Date() }).where(eq(documente.id, r.documentId));
+  const [doc] = await tx.select({ termenCheie: documente.termenCheie }).from(documente).where(eq(documente.id, documentulCeasului(r)));
+  if (doc?.termenCheie === r.regula) await tx.update(documente).set({ termen: nou.termen, actualizatLa: new Date() }).where(eq(documente.id, documentulCeasului(r)));
   await tx.insert(jurnal).values({
-    utilizatorId: a.utilizatorId, actiune: "a hotărât prelungirea termenului", entitate: "document", entitateId: r.documentId,
+    utilizatorId: a.utilizatorId, actiune: "a hotărât prelungirea termenului", entitate: "document", entitateId: documentulCeasului(r),
     detalii: { regula: r.regula, din: r.termen, pana: nou.termen, la: a.la, motiv, instiintare: a.instiintare },
   });
   return nou;

@@ -95,13 +95,14 @@ export function pasiiPosibili(stare: Stare): Pas[] {
   });
 }
 
-export type ModExpediere = "posta" | "email" | "ghiseu" | "platforma";
+export type ModExpediere = "posta" | "email" | "ghiseu" | "platforma" | "curier";
 
 export const ETICHETE_EXPEDIERE: Record<ModExpediere, string> = {
   posta: "Poștă (recomandată, cu confirmare)",
   email: "E-mail",
   ghiseu: "Ridicat la ghișeu",
   platforma: "Platformă online",
+  curier: "Curier sau delegat, cu semnătură de primire",
 };
 
 export function esteModExpediere(x: string): x is ModExpediere {

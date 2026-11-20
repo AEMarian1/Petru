@@ -4,6 +4,7 @@ import { db } from "@/baza/db";
 import { inEntitate } from "@/baza/entitate";
 import { cifrele, listaRegistrului } from "@/baza/registratura";
 import { cifreleCererilor, deLaConducere } from "@/baza/cereri";
+import { cifreleConsiliului } from "@/baza/consiliu";
 import { dataRo as zi } from "@/componente/format";
 import { ETICHETE } from "@/domeniu/drumul-actului";
 import { aziInRomania, ETICHETE_TERMEN, stareaTermenului, vedereaRegistrului } from "@/domeniu/registratura";
@@ -15,6 +16,9 @@ export default async function Panou() {
   const b = db();
   const azi = aziInRomania();
   const vedeCererile = u.poate("cereri.gestioneaza") || u.poate("documente.vede_tot") || u.poate("documente.vede_compartiment");
+  // Consiliul local: termenele (prefect, procesul-verbal, Legea 52) pentru cine ține consiliul și pentru secretarul general.
+  const vedeConsiliul = u.poate("consiliu.gestioneaza") || u.poate("documente.contrasemneaza");
+  const consiliu = b && vedeConsiliul ? await inEntitate(b, u.entitateId, (tx) => cifreleConsiliului(tx, { fel: "tot" }, azi)) : null;
   const date = b && vedere.fel !== "nimic"
     ? await inEntitate(b, u.entitateId, async (tx) => ({
         cifre: await cifrele(tx, vedere, azi),
@@ -30,6 +34,17 @@ export default async function Panou() {
     <>
       <h1>Panou — {u.numeAfisat}</h1>
       <p className="slab">{u.entitateNume} · Roluri: {u.roluri.map((r) => (r.compartiment ? `${r.nume} (${r.compartiment})` : r.nume)).join(", ") || "niciunul"}</p>
+      {consiliu && (
+        <>
+          <h2>Consiliul local</h2>
+          <div className="grila">
+            <Link href="/consiliu?filtru=adoptate" className="card"><h3>{consiliu.prefectDeschise}</h3><p className="slab">hotărâri de comunicat la prefect{consiliu.prefectDepasite > 0 && `, ${consiliu.prefectDepasite} cu termenul depășit`}</p></Link>
+            <Link href="/consiliu" className="card"><h3>{consiliu.pvDePublicat}</h3><p className="slab">procese-verbale de publicat{consiliu.pvDepasite > 0 && `, ${consiliu.pvDepasite} cu termenul depășit`}</p></Link>
+            <Link href="/consiliu?filtru=adoptate" className="card"><h3>{u.poate("documente.contrasemneaza") ? consiliu.deContrasemnat : consiliu.deSemnat}</h3><p className="slab">{u.poate("documente.contrasemneaza") ? "hotărâri de contrasemnat" : "hotărâri fără semnătura președintelui de ședință"}</p></Link>
+          </div>
+          {vedere.fel !== "nimic" && <h2>Registrul</h2>}
+        </>
+      )}
       {date && (
         <>
           <div className="grila">

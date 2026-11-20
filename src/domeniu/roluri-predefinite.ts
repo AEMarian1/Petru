@@ -14,8 +14,8 @@ export const ROLURI_PREDEFINITE: RolPredefinit[] = [
   },
   {
     cheie: "primar", nume: "Primarul în funcție", tipuri: ["primarie"],
-    descriere: "Conducerea executivă: vede tot, semnează actele și dispozițiile, aprobă publicarea.",
-    permisiuni: ["documente.vede_tot", "documente.semneaza", "dispozitii.semneaza", "publicare.aproba", "consiliu.vede", "jurnal.citeste"],
+    descriere: "Conducerea executivă: vede tot, semnează actele și dispozițiile, inițiază proiectele de hotărâre, aprobă publicarea.",
+    permisiuni: ["documente.vede_tot", "documente.semneaza", "dispozitii.semneaza", "consiliu.initiaza", "publicare.aproba", "consiliu.vede", "jurnal.citeste"],
   },
   {
     cheie: "viceprimar", nume: "Viceprimarul", tipuri: ["primarie"],
@@ -26,6 +26,11 @@ export const ROLURI_PREDEFINITE: RolPredefinit[] = [
     cheie: "secretar", nume: "Secretarul general", tipuri: ["primarie"],
     descriere: "Legalitatea actelor, repartizarea, consiliul local, registrele.",
     permisiuni: ["documente.vede_tot", "documente.repartizeaza", "documente.contrasemneaza", "cereri.gestioneaza", "dispozitii.contrasemneaza", "consiliu.gestioneaza", "consiliu.vede", "publicare.aproba", "jurnal.citeste"],
+  },
+  {
+    cheie: "secretariat_consiliu", nume: "Secretariatul consiliului local", tipuri: ["primarie"],
+    descriere: "Biroul Administrație publică: proiectele, comisiile, anunțurile pe Legea 52, ședințele, procesele-verbale și registrele consiliului local.",
+    permisiuni: ["consiliu.gestioneaza", "consiliu.vede"],
   },
   {
     cheie: "registratura", nume: "Registratura", tipuri: ["primarie", "serviciu_public"],

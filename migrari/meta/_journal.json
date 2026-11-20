@@ -50,6 +50,13 @@
       "when": 1795188909415,
       "tag": "0006_prelungirea_si_semnaturile",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795191620496,
+      "tag": "0007_consiliul_local",
+      "breakpoints": true
     }
   ]
 }

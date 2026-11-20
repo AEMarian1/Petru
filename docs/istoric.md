@@ -131,7 +131,7 @@ Autorul unește PR-urile #12, #13, #14. Se construiește 0.1.x (ceasul termenelo
 
 | PR | Ce | Starea la sfârșitul sesiunii |
 |---|---|---|
-| (acest PR) | 0.1.1: calendarul cu sărbătorile legale, ceasul termenelor (prelungire, termene intermediare, oprire), registrele petițiilor și ale cererilor 544, reclamația administrativă, rapoartele semestrial și anual, migrarea `0005` cu izolarea pe entități | deschis |
+| #15 | 0.1.1: calendarul cu sărbătorile legale, ceasul termenelor (prelungire, termene intermediare, oprire), registrele petițiilor și ale cererilor 544, reclamația administrativă, rapoartele semestrial și anual, migrarea `0005` cu izolarea pe entități | unit |
 
 ### Întrebări deschise
 
@@ -143,3 +143,38 @@ Autorul unește PR-urile #12, #13, #14. Se construiește 0.1.x (ceasul termenelo
 ### Pasul următor
 
 Autorul verifică PR-ul pe previzualizare (contul de probă „Responsabilul cu petițiile și informațiile publice” și „Secretarul general”) și îl unește. Apoi 0.2: șabloanele, avizele, consiliul local și dispozițiile, cu ceasul la prefect.
+
+## Sesiunea 4 — 20.11.2026
+
+### Ce s-a hotărât
+
+| Hotărârea | Unde e scrisă |
+|---|---|
+| Consiliul local azi: inițiază primarul, compartimentul redactează raportul; circulația pe e-mail; cinci comisii cu aviz scris; Legea 52 pe site și în MOL, ținută de Administrație publică; ordinea de zi și convocatorul de secretarul general; vot deschis, procesul-verbal redactat de Administrație publică; registrul hotărârilor separat, ținut de secretar; prefectul pe hârtie, prin curier; MOL pe CityOn, de secretar; semnătura și contrasemnătura ca în lege | `docs/consiliul-local.md` |
+| Ce încurcă: termenele (prefect, Legea 52, procesul-verbal) și registrele cu MOL făcute de două ori | `docs/consiliul-local.md` |
+| Proiectul de hotărâre e un document din registru, pe drumul actului; hotărârea e același act, emis după semnături | `src/baza/consiliu.ts` |
+| Drept nou `consiliu.initiaza` (primarul); rol nou „Secretariatul consiliului local” (Administrație publică) | `docs/utilizatori-si-roluri.md` |
+| Ceasul termenelor ține și de o ședință; termenele de „așteptare” (Legea 52) | `docs/termene.md` |
+| Petru nu publică singur în MOL: poarta de publicare, apoi secretarul scrie data; registrele se exportă CSV | `docs/consiliul-local.md` |
+
+### Ce s-a construit
+
+| PR | Ce | Starea la sfârșitul sesiunii |
+|---|---|---|
+| (acest PR) | Consiliul local 0.2: proiectele, comisiile, Legea 52, ședințele, votul cu cvorum și prag, hotărârile numerotate, semnăturile, prefectul cu ceas, procesele-verbale cu ceas, poarta de publicare, registrele MOL cu CSV; migrarea `0007` cu izolarea pe entități; demo-ul static înlocuit cu date din bază | de unit, la cererea autorului, după verificări |
+
+S-a corectat și o interogare din registratură: condiția „este cerere” se lega, în unele interogări, de identificatorul greșit (vederea responsabilului cu cererile).
+
+### Întrebări deschise
+
+1. J19–J27 din `docs/consiliul-local.md` (prefectul, procesul-verbal, Legea 52, convocarea, majoritățile, refuzul semnăturii, coloanele registrelor MOL, raportul, hotărârile individuale).
+2. A3: se poate cere furnizorului MOL un import sau o interfață, ca exportul CSV să nu mai fie încărcat de mână?
+3. Rămân întrebările din sesiunile 1–3.
+
+### Pasul următor
+
+Dispozițiile primarului pe același drum (normativ / individual, comunicarea la prefect), apoi șabloanele și fișierele atașate (stratul de stocare).
+
+### Mesaj pentru sesiunea următoare
+
+> Citește `CLAUDE.md`, `docs/istoric.md`, `docs/consiliul-local.md`, `docs/termene.md` și `docs/cercetare/platforma-concurenta-si-lege.md`. Continuăm 0.2 cu dispozițiile primarului, pe drumul actului, refolosind ceasul la prefect și poarta de publicare; întreabă-mă întâi cum se lucrează azi.

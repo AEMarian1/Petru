@@ -5,7 +5,7 @@
  */
 import { and, asc, desc, eq, gte, isNull, lte, sql, type SQL } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
-import { ceasuri, cereri, compartimente, documente, jurnal } from "./schema";
+import { ceasuri, cereri, compartimente, documente, jurnal, proiecteHotarare } from "./schema";
 import type { Tranzactie } from "./entitate";
 import { conditiaVederii, creeazaIesirea } from "./registratura";
 import { opresteCeasurile, pornesteCeasulDocumentului, schimbaRegulaRaspunsului } from "./ceasuri";
@@ -25,6 +25,8 @@ async function documentul(tx: Tranzactie, id: string) {
   const [d] = await tx.select().from(documente).where(eq(documente.id, id)).for("update");
   if (!d) throw new Error("Documentul nu există.");
   if (d.directie === "iesire") throw new Error("O ieșire nu e o cerere.");
+  const [p] = await tx.select({ id: proiecteHotarare.id }).from(proiecteHotarare).where(eq(proiecteHotarare.documentId, id));
+  if (p) throw new Error("Un proiect de hotărâre nu e o cerere.");
   return d;
 }
 

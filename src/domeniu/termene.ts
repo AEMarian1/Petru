@@ -29,6 +29,13 @@ export type Jalon = {
   deConfirmat: boolean;
 };
 
+/**
+ * Sensul termenului: „limita” = actul trebuie făcut până la termen (răspunsul, comunicarea la prefect);
+ * „asteptare” = actul nu se poate face înainte de termen (votul pe un proiect normativ, după anunțul
+ * pe Legea 52/2003). Un termen de așteptare nu se „depășește”: după el, condiția e îndeplinită.
+ */
+export type SensTermen = "limita" | "asteptare";
+
 export type TermenLegal = {
   cheie: string;
   ce: string;
@@ -36,6 +43,8 @@ export type TermenLegal = {
   felZile: FelZile;
   temei: string;
   deConfirmat: boolean;
+  /** Implicit „limita”. */
+  sens?: SensTermen;
   prelungire?: PrelungireLegala;
   jaloane?: Jalon[];
 };
@@ -71,7 +80,14 @@ export const TERMENE: TermenLegal[] = [
   { cheie: "certificat-fiscal", ce: "Certificatul de atestare fiscală", zile: 2, felZile: "lucrătoare", temei: "Codul de procedură fiscală", deConfirmat: true },
   { cheie: "certificat-urbanism", ce: "Certificatul de urbanism", zile: 15, felZile: "lucrătoare", temei: "Codul amenajării teritoriului, urbanismului și construcțiilor (Legea 169/2026)", deConfirmat: true },
   { cheie: "autorizatie-construire", ce: "Autorizația de construire", zile: 30, felZile: "calendaristice", temei: "Codul amenajării teritoriului, urbanismului și construcțiilor (Legea 169/2026)", deConfirmat: true },
-  { cheie: "transparenta-52", ce: "Propuneri la proiectele normative, după anunț", zile: 10, felZile: "calendaristice", temei: "Legea 52/2003", deConfirmat: false },
+  { cheie: "transparenta-52", ce: "Propuneri la proiectele normative, după anunț", zile: 10, felZile: "calendaristice", temei: "Legea 52/2003, art. 7", deConfirmat: false, sens: "asteptare" },
+  // Consiliul local (0.2). Textele nu au fost citite pe forma oficială: toate sunt de confirmat (J1, J19–J21).
+  {
+    cheie: "l52-anunt", ce: "Proiectul normativ se supune aprobării numai după anunțul public", zile: 30, felZile: "lucrătoare",
+    temei: "Legea 52/2003, art. 7 alin. (2)", deConfirmat: true, sens: "asteptare",
+  },
+  { cheie: "hcl-prefect", ce: "Comunicarea hotărârii consiliului local la prefect", zile: 10, felZile: "lucrătoare", temei: "Codul administrativ, art. 197 alin. (1)", deConfirmat: true },
+  { cheie: "pv-publicare", ce: "Afișarea și publicarea procesului-verbal al ședinței, după aprobarea lui", zile: 3, felZile: "lucrătoare", temei: "Codul administrativ, art. 138", deConfirmat: true },
 ];
 
 export function termenul(cheie: string): TermenLegal | undefined {

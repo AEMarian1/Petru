@@ -11,6 +11,7 @@ import { compartimente, documente, importuri, jurnal } from "@/baza/schema";
 import { aplicaImportul, creeazaIesirea } from "@/baza/registratura";
 import { opresteCeasurile, prelungesteCeasul, propunePrelungirea, respingePropunerea } from "@/baza/ceasuri";
 import { cerereaDocumentului, scrieSolutia } from "@/baza/cereri";
+import { proiectulDocumentului, proiectulIesirii } from "@/baza/consiliu";
 import { ceasuri, cereri } from "@/baza/schema";
 import { esteSolutieLaRaspuns, ETICHETE_SOLUTIE, semnaturiLipsa } from "@/domeniu/cereri";
 import { citesteExportul, citesteData, citesteNumar } from "@/domeniu/import-registru";
@@ -41,6 +42,7 @@ export async function facePasul(f: FormData) {
   await inEntitate(baza(), u.entitateId, async (tx) => {
     const [d] = await tx.select({ stare: documente.stare, compartimentId: documente.compartimentId }).from(documente).where(eq(documente.id, id)).for("update");
     if (!d) throw new Error("Documentul nu există.");
+    if (await proiectulDocumentului(tx, id)) throw new Error("Proiectul de hotărâre se lucrează din Consiliul local.");
     if (!poateFacePasul(u, pas, d.compartimentId)) throw new Error("Nu aveți dreptul pentru acest pas.");
     const spre = PASI[pas].spre;
     if (!pasiiPosibili(d.stare).includes(pas)) throw new Error("Pasul nu e posibil din starea de acum.");
@@ -87,6 +89,7 @@ export async function inregistreazaIesirea(f: FormData) {
   await inEntitate(baza(), u.entitateId, async (tx) => {
     const [d] = await tx.select().from(documente).where(eq(documente.id, id)).for("update");
     if (!d) throw new Error("Documentul nu există.");
+    if (await proiectulDocumentului(tx, d.id)) throw new Error("Hotărârea se comunică din Consiliul local.");
     if (!poateFacePasul(u, "iesire", d.compartimentId)) throw new Error("Nu aveți dreptul pentru acest pas.");
     if (!poateTrece(d.stare, "emis")) throw new Error("Răspunsul trebuie să fie întâi la semnat.");
     const cerere = await cerereaDocumentului(tx, d.id);
@@ -107,8 +110,9 @@ export async function inregistreazaIesirea(f: FormData) {
 /** Ceasul și compartimentul documentului lui, pentru verificarea dreptului. */
 async function ceasul(tx: Parameters<Parameters<typeof inEntitate>[2]>[0], ceasId: string) {
   const [c] = await tx.select({ documentId: ceasuri.documentId, compartimentId: documente.compartimentId }).from(ceasuri).innerJoin(documente, eq(documente.id, ceasuri.documentId)).where(eq(ceasuri.id, ceasId));
-  if (!c) throw new Error("Ceasul nu există.");
-  return c;
+  // Legătura cu documentul e obligatorie aici (innerJoin): ceasurile ședințelor nu se prelungesc.
+  if (!c?.documentId) throw new Error("Ceasul nu există.");
+  return { documentId: c.documentId, compartimentId: c.compartimentId };
 }
 
 function reimprospateaza(docId: string) {
@@ -174,6 +178,7 @@ export async function semneazaRaspunsul(f: FormData) {
   await inEntitate(baza(), u.entitateId, async (tx) => {
     const [d] = await tx.select({ stare: documente.stare }).from(documente).where(eq(documente.id, id)).for("update");
     if (!d) throw new Error("Documentul nu există.");
+    if (await proiectulDocumentului(tx, id)) throw new Error("Hotărârea se semnează din Consiliul local.");
     if (d.stare !== "la_semnat") throw new Error("Se semnează numai răspunsul aflat la semnat.");
     await tx.update(documente).set(fel === "semneaza" ? { semnatLa: azi, semnatDe: u.id, actualizatLa: new Date() } : { contrasemnatLa: azi, contrasemnatDe: u.id, actualizatLa: new Date() }).where(eq(documente.id, id));
     await tx.insert(jurnal).values({ utilizatorId: u.id, actiune: fel === "semneaza" ? "a semnat răspunsul" : "a contrasemnat răspunsul", entitate: "document", entitateId: id });
@@ -191,7 +196,9 @@ export async function confirmaPrimirea(f: FormData) {
   await inEntitate(baza(), u.entitateId, async (tx) => {
     const [d] = await tx.select({ directie: documente.directie, compartimentId: documente.compartimentId }).from(documente).where(eq(documente.id, id));
     if (!d || d.directie !== "iesire") throw new Error("Ieșirea nu există.");
-    if (!poateFacePasul(u, "iesire", d.compartimentId)) throw new Error("Nu aveți dreptul pentru acest pas.");
+    // Dovada primirii la prefect o scrie secretariatul consiliului; o poate scrie și registratura.
+    const laPrefect = await proiectulIesirii(tx, id);
+    if (!poateFacePasul(u, "iesire", d.compartimentId) && !(laPrefect && u.poate("consiliu.gestioneaza"))) throw new Error("Nu aveți dreptul pentru acest pas.");
     await tx.update(documente).set({ confirmatLa: data, actualizatLa: new Date() }).where(eq(documente.id, id));
     await tx.insert(jurnal).values({ utilizatorId: u.id, actiune: "a scris confirmarea de primire", entitate: "document", entitateId: id, detalii: { data } });
   });

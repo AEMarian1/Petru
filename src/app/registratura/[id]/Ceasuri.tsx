@@ -1,5 +1,5 @@
 import { caCeas, type RandCeas } from "@/baza/ceasuri";
-import { jaloanele, poatePrelungi, poatePropunePrelungirea, stareaCeasului, termenulPrelungit, ultimaZiDePrelungire, ziNelucratoare, zileIntre, inTermen } from "@/domeniu/ceas";
+import { esteAsteptare, stareaAsteptarii, jaloanele, poatePrelungi, poatePropunePrelungirea, stareaCeasului, termenulPrelungit, ultimaZiDePrelungire, ziNelucratoare, zileIntre, inTermen } from "@/domeniu/ceas";
 import { termenul } from "@/domeniu/termene";
 import { dataRo } from "@/componente/format";
 import { hotarastePrelungirea, propunePrelungireaTermenului, respingePrelungirea } from "../actiuni";
@@ -35,6 +35,9 @@ export function Ceasuri({ ceasuri, azi, poatePropune, poateHotari }: { ceasuri: 
         const termenNou = termenulPrelungit(c);
         const ultima = ultimaZiDePrelungire(c);
         const it = inTermen(c);
+        // Un termen de așteptare (Legea 52) nu se depășește: după el, actul se poate face.
+        const asteapta = esteAsteptare(r.regula);
+        const ast = stareaAsteptarii(c, azi);
         return (
           <section key={r.id} className="card" style={{ marginBottom: "0.8rem" }}>
             <h3>{t?.ce ?? r.regula}</h3>
@@ -45,11 +48,18 @@ export function Ceasuri({ ceasuri, azi, poatePropune, poateHotari }: { ceasuri: 
             <dl className="fisa">
               <dt>Pornit la</dt><dd>{dataRo(c.pornitLa)}</dd>
               <dt>Termenul</dt>
-              <dd>
-                {dataRo(c.termen)} <span className={`eticheta termen-${st === "oprit" ? "rezolvat" : st}`}>{ETICHETE_CEAS[st]}</span>
-                {st === "depasit" && <> cu {zileIntre(c.termen, azi)} zile</>}
-                {zi && !c.opritLa && <span className="slab"> · cade într-o zi nelucrătoare ({zi}); Petru nu îl mută</span>}
-              </dd>
+              {asteapta ? (
+                <dd>
+                  {dataRo(c.termen)} <span className={`eticheta ${ast === "indeplinit" || c.opritLa ? "termen-rezolvat" : "termen-aproape"}`}>{c.opritLa ? "Oprit" : ast === "indeplinit" ? "Îndeplinit" : "În așteptare"}</span>
+                  <span className="slab"> · actul se poate face numai după această zi</span>
+                </dd>
+              ) : (
+                <dd>
+                  {dataRo(c.termen)} <span className={`eticheta termen-${st === "oprit" ? "rezolvat" : st}`}>{ETICHETE_CEAS[st]}</span>
+                  {st === "depasit" && <> cu {zileIntre(c.termen, azi)} zile</>}
+                  {zi && !c.opritLa && <span className="slab"> · cade într-o zi nelucrătoare ({zi}); Petru nu îl mută</span>}
+                </dd>
+              )}
               {c.prelungitLa && (
                 <>
                   <dt>Prelungit</dt>
@@ -65,7 +75,7 @@ export function Ceasuri({ ceasuri, azi, poatePropune, poateHotari }: { ceasuri: 
                   <dt>Oprit la</dt>
                   <dd>
                     {dataRo(c.opritLa)}{r.motivOprire && ` — ${r.motivOprire}`}{" "}
-                    <span className={`eticheta ${it ? "termen-rezolvat" : "termen-depasit"}`}>{it ? "în termen" : `după termen, cu ${zileIntre(c.termen, c.opritLa)} zile`}</span>
+                    {!asteapta && <span className={`eticheta ${it ? "termen-rezolvat" : "termen-depasit"}`}>{it ? "în termen" : `după termen, cu ${zileIntre(c.termen, c.opritLa)} zile`}</span>}
                   </dd>
                 </>
               )}

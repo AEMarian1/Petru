@@ -6,7 +6,7 @@ import { and, asc, desc, eq, ilike, inArray, isNull, or, sql, type SQL } from "d
 import { cereri, compartimente, documente, importuri, jurnal, persoane, utilizatori } from "./schema";
 import type { Tranzactie } from "./entitate";
 import { gasesteCompartimentul, type EroareRand, type Potrivire, type RandImportat } from "@/domeniu/import-registru";
-import { dataLimita, esteRezolvat, recunoasteTermenul, ZILE_AVERTIZARE, type Vedere } from "@/domeniu/registratura";
+import { dataLimita, esteRezolvat, recunoasteTermenul, ZILE_AVERTIZARE, type ModExpediere, type Vedere } from "@/domeniu/registratura";
 import { adaugaZile } from "@/domeniu/termene";
 import type { Stare } from "@/domeniu/drumul-actului";
 import { felulDupaTermen } from "@/domeniu/cereri";
@@ -16,7 +16,7 @@ export type FiltruTermen = "depasit" | "aproape" | "deschise" | "la_semnat" | "f
 
 export type Filtre = { cauta?: string; termen?: FiltruTermen; compartimentId?: string; directie?: "intrare" | "iesire" };
 
-const esteCerere = sql`exists (select 1 from petru.cereri c where c.document_id = ${documente.id})`;
+const esteCerere = sql`exists (select 1 from petru.cereri c where c.document_id = documente.id)`;
 
 /** Condiția de vizibilitate pe compartimente și pe cereri. Entitatea e deja oprită de bază. */
 export function conditiaVederii(v: Vedere): SQL | undefined {
@@ -236,7 +236,7 @@ export async function aplicaImportul(tx: Tranzactie, importId: string, entitateI
  */
 export async function creeazaIesirea(
   tx: Tranzactie,
-  a: { entitateId: string; utilizatorId: string; intrare: typeof documente.$inferSelect; numar: number; data: string; mod: "posta" | "email" | "ghiseu" | "platforma"; destinatar: string | null; tip?: string; motivOprire: string },
+  a: { entitateId: string; utilizatorId: string; intrare: typeof documente.$inferSelect; numar: number; data: string; mod: ModExpediere; destinatar: string | null; tip?: string; continut?: string; motivOprire: string },
 ) {
   const d = a.intrare;
   const an = Number(a.data.slice(0, 4));
@@ -247,7 +247,7 @@ export async function creeazaIesirea(
     .insert(documente)
     .values({
       entitateId: a.entitateId, an, numar: a.numar, dataInregistrare: new Date(`${a.data}T12:00:00Z`), directie: "iesire", sursa: "petru",
-      tip: a.tip ?? `Răspuns la nr. ${d.numar}/${d.an}`, continut: `Răspuns la: ${d.continut}`.slice(0, 2000),
+      tip: a.tip ?? `Răspuns la nr. ${d.numar}/${d.an}`, continut: (a.continut ?? `Răspuns la: ${d.continut}`).slice(0, 2000),
       compartimentId: d.compartimentId, raspunsLaId: d.id, destinatarText: a.destinatar ?? d.emitentText,
       modExpediere: a.mod, expediatLa: a.data, stare: "emis",
     })

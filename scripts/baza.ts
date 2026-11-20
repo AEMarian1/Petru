@@ -19,6 +19,7 @@ import { adaugaZile } from "../src/domeniu/termene";
 import { setareaInstitutiei } from "../src/domeniu/mediu";
 import { opreste, pornesteCeasul, prelungeste, poatePrelungi, type Ceas } from "../src/domeniu/ceas";
 import { felulDupaTermen, type Solutie } from "../src/domeniu/cereri";
+import { incarcaConsiliulDeProba } from "../src/baza/consiliu-proba";
 
 const LACAT_REFACERE = 7_202_611;
 const MIGRARI = { migrationsFolder: "migrari", migrationsSchema: "petru_migrari", migrationsTable: "migrari" };
@@ -120,8 +121,8 @@ async function incarcaDateDeProba(db: Db) {
     { entitate: primaria!.id, nume: "Viceprimarul (probă)", functie: "Viceprimar", roluri: [["viceprimar", null]] },
     { entitate: primaria!.id, nume: "Secretarul general (probă)", functie: "Secretar general", roluri: [["secretar", null]] },
     { entitate: primaria!.id, nume: "Registratura (probă)", functie: "Referent", roluri: [["registratura", null]] },
-    // Biroul Administrație publică e responsabilul cu Legea 544: lucrează cererile lui și ține registrele.
-    { entitate: primaria!.id, nume: "Inspector administrație publică (probă)", functie: "Inspector", roluri: [["functionar", "administratie"], ["responsabil_cereri", null]] },
+    // Biroul Administrație publică e responsabilul cu Legea 544 și ține secretariatul consiliului local.
+    { entitate: primaria!.id, nume: "Inspector administrație publică (probă)", functie: "Inspector", roluri: [["functionar", "administratie"], ["responsabil_cereri", null], ["secretariat_consiliu", null]] },
     { entitate: primaria!.id, nume: "Inspector urbanism (probă)", functie: "Inspector", roluri: [["functionar", "urbanism"]] },
     { entitate: primaria!.id, nume: "Inspector taxe și impozite (probă)", functie: "Inspector", roluri: [["functionar", "taxe"]] },
     { entitate: primaria!.id, nume: "Consilier local (probă)", functie: "Consilier local", roluri: [["consilier", null]] },
@@ -149,6 +150,12 @@ async function incarcaDateDeProba(db: Db) {
     .returning({ id: s.persoane.id });
 
   await documenteDeProba(db, primaria!.id, salubrizare!.id, compId, pers.map((p) => p.id), registratura.id);
+  await incarcaConsiliulDeProba(db, {
+    entitateId: primaria!.id, compId,
+    secretarId: utilizatorId.get("Secretarul general (probă)")!,
+    secretariatId: utilizatorId.get("Inspector administrație publică (probă)")!,
+    primarId: utilizatorId.get("Primarul în funcție (probă)")!,
+  });
 }
 
 /**
