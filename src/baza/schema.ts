@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { bigserial, boolean, date, integer, jsonb, pgSchema, primaryKey, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
+import { type AnyPgColumn, bigserial, boolean, date, integer, jsonb, pgSchema, primaryKey, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
 
 /**
  * Schema „petru”: datele aplicației. În mediile de probă se șterge și se reface la fiecare publicare.
@@ -16,6 +16,10 @@ export const stareDocument = petru.enum("stare_document", [
 export const tipEntitate = petru.enum("tip_entitate", ["primarie", "serviciu_public", "alta"]);
 export const tipPersoana = petru.enum("tip_persoana", ["fizica", "juridica", "institutie"]);
 export const directieDocument = petru.enum("directie_document", ["intrare", "iesire", "intern"]);
+export const sursaDocument = petru.enum("sursa_document", ["petru", "import"]);
+export const canalIntrare = petru.enum("canal_intrare", ["ghiseu", "posta", "email", "platforma"]);
+export const modExpediere = petru.enum("mod_expediere", ["posta", "email", "ghiseu", "platforma"]);
+export const stareImport = petru.enum("stare_import", ["verificat", "aplicat", "renuntat"]);
 
 /** Setările instituției: numele, localitatea, județul. Un singur rând. În cod nu apare nicio localitate. */
 export const institutie = petru.table("institutie", {
@@ -125,25 +129,66 @@ export const utilizatorRoluri = petru.table(
   (t) => [unique("utilizator_rol_compartiment").on(t.utilizatorId, t.rolId, t.compartimentId)],
 );
 
-/** Registrul de intrare-ieșire: un singur drum al actului pentru toate documentele. */
+/**
+ * Registrul de intrare-ieșire: un singur drum al actului pentru toate documentele.
+ * Fiecare rând aparține unei entități; baza oprește accesul unei entități la rândurile alteia
+ * (securitate la nivel de rând, migrarea 0004). Registrul oficial e azi în SOBIS: rândurile cu
+ * sursa „import” vin din exportul lui, cu numărul lui; Petru adaugă urmărirea.
+ */
 export const documente = petru.table(
   "documente",
   {
     id: id(),
+    entitateId: uuid("entitate_id").notNull().references(() => entitati.id),
     an: integer("an").notNull(),
     numar: integer("numar").notNull(),
     dataInregistrare: timestamp("data_inregistrare", { withTimezone: true }).notNull().defaultNow(),
     directie: directieDocument("directie").notNull().default("intrare"),
+    sursa: sursaDocument("sursa").notNull().default("petru"),
+    canal: canalIntrare("canal"),
     tip: text("tip").notNull(),
     continut: text("continut").notNull(),
     emitentId: uuid("emitent_id").references(() => persoane.id),
+    /** Emitentul așa cum e scris în registrul oficial, până la legarea de registrul comun. */
+    emitentText: text("emitent_text"),
     compartimentId: uuid("compartiment_id").references(() => compartimente.id),
+    /** Compartimentul așa cum e scris în export, când nu s-a putut potrivi cu unul din Petru. */
+    compartimentText: text("compartiment_text"),
     stare: stareDocument("stare").notNull().default("inregistrat"),
     termen: date("termen"),
+    /** Cheia termenului legal (src/domeniu/termene.ts) și dacă a fost recunoscut sau e cel implicit. */
+    termenCheie: text("termen_cheie"),
+    termenRecunoscut: boolean("termen_recunoscut").notNull().default(true),
+    /** La ieșire: documentul intrat la care răspunde. */
+    raspunsLaId: uuid("raspuns_la_id").references((): AnyPgColumn => documente.id),
+    destinatarText: text("destinatar_text"),
+    modExpediere: modExpediere("mod_expediere"),
+    expediatLa: date("expediat_la"),
+    confirmatLa: date("confirmat_la"),
+    importId: uuid("import_id").references(() => importuri.id),
     creatLa: creatLa(),
+    actualizatLa: timestamp("actualizat_la", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [unique("documente_an_numar").on(t.an, t.numar)],
+  (t) => [unique("documente_entitate_an_numar").on(t.entitateId, t.an, t.numar)],
 );
+
+/** Importurile exportului din registrul oficial: întâi verificate, apoi aplicate. Rămân ca urmă. */
+export const importuri = petru.table("importuri", {
+  id: id(),
+  entitateId: uuid("entitate_id").notNull().references(() => entitati.id),
+  utilizatorId: uuid("utilizator_id").references(() => utilizatori.id),
+  numeFisier: text("nume_fisier").notNull(),
+  /** Amprenta SHA-256 a fișierului, ca același export să nu fie aplicat de două ori din greșeală. */
+  amprenta: text("amprenta").notNull(),
+  stare: stareImport("stare").notNull().default("verificat"),
+  potrivire: jsonb("potrivire").notNull(),
+  randuri: jsonb("randuri").notNull(),
+  erori: jsonb("erori").notNull(),
+  noi: integer("noi").notNull().default(0),
+  actualizate: integer("actualizate").notNull().default(0),
+  aplicatLa: timestamp("aplicat_la", { withTimezone: true }),
+  creatLa: creatLa(),
+});
 
 /** Jurnalul: se poate doar adăuga. Modificarea și ștergerea sunt blocate în bază (migrarea 0001). */
 export const jurnal = petru.table("jurnal", {

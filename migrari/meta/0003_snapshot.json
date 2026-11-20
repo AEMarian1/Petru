@@ -1,0 +1,1226 @@
+{
+  "id": "3dc98842-941a-4824-8b95-9177c75577f7",
+  "prevId": "0f51802f-6508-4563-a60d-38f74d9ce540",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "petru.compartimente": {
+      "name": "compartimente",
+      "schema": "petru",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "entitate_id": {
+          "name": "entitate_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cheie": {
+          "name": "cheie",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nume": {
+          "name": "nume",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "atributii": {
+          "name": "atributii",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "program": {
+          "name": "program",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "interior": {
+          "name": "interior",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creat_la": {
+          "name": "creat_la",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "compartimente_entitate_id_entitati_id_fk": {
+          "name": "compartimente_entitate_id_entitati_id_fk",
+          "tableFrom": "compartimente",
+          "tableTo": "entitati",
+          "schemaTo": "petru",
+          "columnsFrom": [
+            "entitate_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "compartimente_cheie_unique": {
+          "name": "compartimente_cheie_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "cheie"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "petru.documente": {
+      "name": "documente",
+      "schema": "petru",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "entitate_id": {
+          "name": "entitate_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "an": {
+          "name": "an",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "numar": {
+          "name": "numar",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_inregistrare": {
+          "name": "data_inregistrare",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "directie": {
+          "name": "directie",
+          "type": "directie_document",
+          "typeSchema": "petru",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'intrare'"
+        },
+        "sursa": {
+          "name": "sursa",
+          "type": "sursa_document",
+          "typeSchema": "petru",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'petru'"
+        },
+        "canal": {
+          "name": "canal",
+          "type": "canal_intrare",
+          "typeSchema": "petru",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tip": {
+          "name": "tip",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "continut": {
+          "name": "continut",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "emitent_id": {
+          "name": "emitent_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "emitent_text": {
+          "name": "emitent_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "compartiment_id": {
+          "name": "compartiment_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "compartiment_text": {
+          "name": "compartiment_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "stare": {
+          "name": "stare",
+          "type": "stare_document",
+          "typeSchema": "petru",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'inregistrat'"
+        },
+        "termen": {
+          "name": "termen",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "termen_cheie": {
+          "name": "termen_cheie",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "termen_recunoscut": {
+          "name": "termen_recunoscut",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "raspuns_la_id": {
+          "name": "raspuns_la_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "destinatar_text": {
+          "name": "destinatar_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mod_expediere": {
+          "name": "mod_expediere",
+          "type": "mod_expediere",
+          "typeSchema": "petru",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expediat_la": {
+          "name": "expediat_la",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "confirmat_la": {
+          "name": "confirmat_la",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "import_id": {
+          "name": "import_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creat_la": {
+          "name": "creat_la",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "actualizat_la": {
+          "name": "actualizat_la",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "documente_entitate_id_entitati_id_fk": {
+          "name": "documente_entitate_id_entitati_id_fk",
+          "tableFrom": "documente",
+          "tableTo": "entitati",
+          "schemaTo": "petru",
+          "columnsFrom": [
+            "entitate_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "documente_emitent_id_persoane_id_fk": {
+          "name": "documente_emitent_id_persoane_id_fk",
+          "tableFrom": "documente",
+          "tableTo": "persoane",
+          "schemaTo": "petru",
+          "columnsFrom": [
+            "emitent_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "documente_compartiment_id_compartimente_id_fk": {
+          "name": "documente_compartiment_id_compartimente_id_fk",
+          "tableFrom": "documente",
+          "tableTo": "compartimente",
+          "schemaTo": "petru",
+          "columnsFrom": [
+            "compartiment_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "documente_raspuns_la_id_documente_id_fk": {
+          "name": "documente_raspuns_la_id_documente_id_fk",
+          "tableFrom": "documente",
+          "tableTo": "documente",
+          "schemaTo": "petru",
+          "columnsFrom": [
+            "raspuns_la_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "documente_import_id_importuri_id_fk": {
+          "name": "documente_import_id_importuri_id_fk",
+          "tableFrom": "documente",
+          "tableTo": "importuri",
+          "schemaTo": "petru",
+          "columnsFrom": [
+            "import_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "documente_entitate_an_numar": {
+          "name": "documente_entitate_an_numar",
+          "nullsNotDistinct": false,
+          "columns": [
+            "entitate_id",
+            "an",
+            "numar"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "petru.entitati": {
+      "name": "entitati",
+      "schema": "petru",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "cheie": {
+          "name": "cheie",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nume": {
+          "name": "nume",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tip": {
+          "name": "tip",
+          "type": "tip_entitate",
+          "typeSchema": "petru",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cif": {
+          "name": "cif",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creat_la": {
+          "name": "creat_la",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "entitati_cheie_unique": {
+          "name": "entitati_cheie_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "cheie"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "petru.importuri": {
+      "name": "importuri",
+      "schema": "petru",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "entitate_id": {
+          "name": "entitate_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "utilizator_id": {
+          "name": "utilizator_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nume_fisier": {
+          "name": "nume_fisier",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amprenta": {
+          "name": "amprenta",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stare": {
+          "name": "stare",
+          "type": "stare_import",
+          "typeSchema": "petru",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'verificat'"
+        },
+        "potrivire": {
+          "name": "potrivire",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "randuri": {
+          "name": "randuri",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "erori": {
+          "name": "erori",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "noi": {
+          "name": "noi",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "actualizate": {
+          "name": "actualizate",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "aplicat_la": {
+          "name": "aplicat_la",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creat_la": {
+          "name": "creat_la",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "importuri_entitate_id_entitati_id_fk": {
+          "name": "importuri_entitate_id_entitati_id_fk",
+          "tableFrom": "importuri",
+          "tableTo": "entitati",
+          "schemaTo": "petru",
+          "columnsFrom": [
+            "entitate_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "importuri_utilizator_id_utilizatori_id_fk": {
+          "name": "importuri_utilizator_id_utilizatori_id_fk",
+          "tableFrom": "importuri",
+          "tableTo": "utilizatori",
+          "schemaTo": "petru",
+          "columnsFrom": [
+            "utilizator_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "petru.institutie": {
+      "name": "institutie",
+      "schema": "petru",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "nume": {
+          "name": "nume",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "localitate": {
+          "name": "localitate",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "judet": {
+          "name": "judet",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cif": {
+          "name": "cif",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creat_la": {
+          "name": "creat_la",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "petru.jurnal": {
+      "name": "jurnal",
+      "schema": "petru",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cand": {
+          "name": "cand",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "utilizator_id": {
+          "name": "utilizator_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "actiune": {
+          "name": "actiune",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entitate": {
+          "name": "entitate",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entitate_id": {
+          "name": "entitate_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "detalii": {
+          "name": "detalii",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "jurnal_utilizator_id_utilizatori_id_fk": {
+          "name": "jurnal_utilizator_id_utilizatori_id_fk",
+          "tableFrom": "jurnal",
+          "tableTo": "utilizatori",
+          "schemaTo": "petru",
+          "columnsFrom": [
+            "utilizator_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "petru.persoane": {
+      "name": "persoane",
+      "schema": "petru",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "tip": {
+          "name": "tip",
+          "type": "tip_persoana",
+          "typeSchema": "petru",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nume": {
+          "name": "nume",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "prenume": {
+          "name": "prenume",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cnp": {
+          "name": "cnp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cui": {
+          "name": "cui",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "adresa": {
+          "name": "adresa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "telefon": {
+          "name": "telefon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "este_proba": {
+          "name": "este_proba",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "creat_la": {
+          "name": "creat_la",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "petru.rol_permisiuni": {
+      "name": "rol_permisiuni",
+      "schema": "petru",
+      "columns": {
+        "rol_id": {
+          "name": "rol_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "permisiune": {
+          "name": "permisiune",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "rol_permisiuni_rol_id_roluri_id_fk": {
+          "name": "rol_permisiuni_rol_id_roluri_id_fk",
+          "tableFrom": "rol_permisiuni",
+          "tableTo": "roluri",
+          "schemaTo": "petru",
+          "columnsFrom": [
+            "rol_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "rol_permisiuni_rol_id_permisiune_pk": {
+          "name": "rol_permisiuni_rol_id_permisiune_pk",
+          "columns": [
+            "rol_id",
+            "permisiune"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "petru.roluri": {
+      "name": "roluri",
+      "schema": "petru",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "entitate_id": {
+          "name": "entitate_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cheie": {
+          "name": "cheie",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nume": {
+          "name": "nume",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descriere": {
+          "name": "descriere",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "predefinit": {
+          "name": "predefinit",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "creat_la": {
+          "name": "creat_la",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "roluri_entitate_id_entitati_id_fk": {
+          "name": "roluri_entitate_id_entitati_id_fk",
+          "tableFrom": "roluri",
+          "tableTo": "entitati",
+          "schemaTo": "petru",
+          "columnsFrom": [
+            "entitate_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "roluri_entitate_cheie": {
+          "name": "roluri_entitate_cheie",
+          "nullsNotDistinct": false,
+          "columns": [
+            "entitate_id",
+            "cheie"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "petru.utilizator_roluri": {
+      "name": "utilizator_roluri",
+      "schema": "petru",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "utilizator_id": {
+          "name": "utilizator_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rol_id": {
+          "name": "rol_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "compartiment_id": {
+          "name": "compartiment_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "acordat_de": {
+          "name": "acordat_de",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creat_la": {
+          "name": "creat_la",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "utilizator_roluri_utilizator_id_utilizatori_id_fk": {
+          "name": "utilizator_roluri_utilizator_id_utilizatori_id_fk",
+          "tableFrom": "utilizator_roluri",
+          "tableTo": "utilizatori",
+          "schemaTo": "petru",
+          "columnsFrom": [
+            "utilizator_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "utilizator_roluri_rol_id_roluri_id_fk": {
+          "name": "utilizator_roluri_rol_id_roluri_id_fk",
+          "tableFrom": "utilizator_roluri",
+          "tableTo": "roluri",
+          "schemaTo": "petru",
+          "columnsFrom": [
+            "rol_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "utilizator_roluri_compartiment_id_compartimente_id_fk": {
+          "name": "utilizator_roluri_compartiment_id_compartimente_id_fk",
+          "tableFrom": "utilizator_roluri",
+          "tableTo": "compartimente",
+          "schemaTo": "petru",
+          "columnsFrom": [
+            "compartiment_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "utilizator_roluri_acordat_de_utilizatori_id_fk": {
+          "name": "utilizator_roluri_acordat_de_utilizatori_id_fk",
+          "tableFrom": "utilizator_roluri",
+          "tableTo": "utilizatori",
+          "schemaTo": "petru",
+          "columnsFrom": [
+            "acordat_de"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "utilizator_rol_compartiment": {
+          "name": "utilizator_rol_compartiment",
+          "nullsNotDistinct": false,
+          "columns": [
+            "utilizator_id",
+            "rol_id",
+            "compartiment_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "petru.utilizatori": {
+      "name": "utilizatori",
+      "schema": "petru",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "entitate_id": {
+          "name": "entitate_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nume_afisat": {
+          "name": "nume_afisat",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "functie": {
+          "name": "functie",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rol": {
+          "name": "rol",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "compartiment_id": {
+          "name": "compartiment_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "entra_oid": {
+          "name": "entra_oid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cont_local": {
+          "name": "cont_local",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "activ": {
+          "name": "activ",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "ultima_intrare": {
+          "name": "ultima_intrare",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creat_la": {
+          "name": "creat_la",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "utilizatori_entitate_id_entitati_id_fk": {
+          "name": "utilizatori_entitate_id_entitati_id_fk",
+          "tableFrom": "utilizatori",
+          "tableTo": "entitati",
+          "schemaTo": "petru",
+          "columnsFrom": [
+            "entitate_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "utilizatori_compartiment_id_compartimente_id_fk": {
+          "name": "utilizatori_compartiment_id_compartimente_id_fk",
+          "tableFrom": "utilizatori",
+          "tableTo": "compartimente",
+          "schemaTo": "petru",
+          "columnsFrom": [
+            "compartiment_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "utilizatori_email_unique": {
+          "name": "utilizatori_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        },
+        "utilizatori_entra_oid_unique": {
+          "name": "utilizatori_entra_oid_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "entra_oid"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "petru.canal_intrare": {
+      "name": "canal_intrare",
+      "schema": "petru",
+      "values": [
+        "ghiseu",
+        "posta",
+        "email",
+        "platforma"
+      ]
+    },
+    "petru.directie_document": {
+      "name": "directie_document",
+      "schema": "petru",
+      "values": [
+        "intrare",
+        "iesire",
+        "intern"
+      ]
+    },
+    "petru.mod_expediere": {
+      "name": "mod_expediere",
+      "schema": "petru",
+      "values": [
+        "posta",
+        "email",
+        "ghiseu",
+        "platforma"
+      ]
+    },
+    "petru.stare_document": {
+      "name": "stare_document",
+      "schema": "petru",
+      "values": [
+        "inregistrat",
+        "repartizat",
+        "in_lucru",
+        "la_semnat",
+        "emis",
+        "publicat",
+        "arhivat"
+      ]
+    },
+    "petru.stare_import": {
+      "name": "stare_import",
+      "schema": "petru",
+      "values": [
+        "verificat",
+        "aplicat",
+        "renuntat"
+      ]
+    },
+    "petru.sursa_document": {
+      "name": "sursa_document",
+      "schema": "petru",
+      "values": [
+        "petru",
+        "import"
+      ]
+    },
+    "petru.tip_entitate": {
+      "name": "tip_entitate",
+      "schema": "petru",
+      "values": [
+        "primarie",
+        "serviciu_public",
+        "alta"
+      ]
+    },
+    "petru.tip_persoana": {
+      "name": "tip_persoana",
+      "schema": "petru",
+      "values": [
+        "fizica",
+        "juridica",
+        "institutie"
+      ]
+    }
+  },
+  "schemas": {
+    "petru": "petru"
+  },
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

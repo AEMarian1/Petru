@@ -4,7 +4,7 @@ Lista dată de autor la 19.11.2026. Serviciul Domeniul public face parte din pri
 
 | Biroul | Ce intră | Ce iese (și cine semnează) | Cu ce lucrează azi | Ce îl doare |
 |---|---|---|---|---|
-| Registratura | | | | |
+| Registratura | hârtie la ghișeu, poștă și curier, e-mail, platforme online | ieșirea cu număr nou, legată de intrare; pleacă prin poștă, e-mail, ghișeu sau platformă | SOBIS (registru unic pe an; repartizare directă la birouri) | termenele depășite; nu se știe unde e actul; răspunsul și confirmarea nu stau lângă cerere. Detalii: [`registratura.md`](registratura.md) |
 | Registrul agricol | | | | |
 | Taxe și impozite (PF și PJ) | | | | |
 | Casieria | | | | |

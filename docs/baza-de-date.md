@@ -12,6 +12,8 @@ PostgreSQL standard, cu migrări SQL numerotate în `migrari/` (Drizzle).
 
 Jurnalul (`petru.jurnal`) se poate doar completa: modificarea, ștergerea și golirea sunt refuzate de bază (migrarea `0001`).
 
+Documentele și importurile sunt izolate pe entități în bază (migrarea `0004`): aplicația le citește și le scrie în rolul `petru_aplicatie`, cu entitatea utilizatorului, prin `inEntitate` din `src/baza/entitate.ts`. Migrarea creează rolul (fără drept de intrare) și i-l dă utilizatorului care rulează migrările. Refacerea datelor de probă folosește `caSistem`.
+
 ## Comenzile
 
 | Comanda | Ce face |
@@ -25,7 +27,7 @@ Fără `DATABASE_URL`, comenzile nu fac nimic.
 
 ## Datele de probă
 
-- Generate determinist (aceeași sămânță, aceleași date), toate marcate `este_proba`.
+- Generate determinist (aceeași sămânță, aceleași date), toate marcate `este_proba`. Datele documentelor se socotesc de la ziua refacerii, ca termenele depășite și apropiate să existe mereu.
 - CNP-urile de probă au cifra de control corectă și **codul de județ 99**, neatribuit, deci nu pot fi ale unei persoane reale.
 - Adresele sunt „Strada Exemplu”, e-mailurile au domeniul `.invalid`, firmele au „(probă)” în nume.
 

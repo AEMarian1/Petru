@@ -22,6 +22,20 @@
       "when": 1795131382386,
       "tag": "0002_utilizatori_roluri_drepturi",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795133630384,
+      "tag": "0003_registratura",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795133640184,
+      "tag": "0004_izolarea_entitatilor",
+      "breakpoints": true
     }
   ]
 }

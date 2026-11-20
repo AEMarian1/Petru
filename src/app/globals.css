@@ -9,6 +9,8 @@
   --atentie-fundal: #fff1c2;
   --atentie-text: #5c4300;
   --ok: #2d6a3e;
+  --rau-fundal: #fbe3e1;
+  --rau-text: #8a1f17;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -22,6 +24,8 @@
     --atentie-fundal: #4a3b0a;
     --atentie-text: #ffe8a3;
     --ok: #7cc490;
+    --rau-fundal: #4a1a16;
+    --rau-text: #ffb4ab;
   }
 }
 * { box-sizing: border-box; }
@@ -78,7 +82,7 @@ tr:last-child td { border-bottom: 0; }
 .drum li.acum { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
 .jurnal { padding-left: 1.2rem; }
 form label { display: block; font-weight: 600; margin: 1rem 0 0.3rem; }
-textarea, input[type="text"] {
+textarea, input[type="text"], input[type="search"], input[type="date"], input[type="file"] {
   width: 100%; font: inherit; padding: 0.6rem; border: 1px solid var(--linie); border-radius: 8px;
   background: var(--suprafata); color: var(--text);
 }
@@ -94,3 +98,15 @@ select, input[type="email"] {
 .matrice td:first-child, .matrice th:first-child { text-align: left; }
 .eroare { background: #fde2e1; color: #6b1210; padding: 0.7rem 0.9rem; border-radius: 8px; }
 @media (prefers-color-scheme: dark) { .eroare { background: #4a1715; color: #ffd6d3; } }
+
+/* Registratura: termenele și fișa documentului */
+.eticheta.termen-depasit { background: var(--rau-fundal); color: var(--rau-text); border-color: transparent; }
+.eticheta.termen-aproape { background: var(--atentie-fundal); color: var(--atentie-text); border-color: transparent; }
+.eticheta.termen-rezolvat { color: var(--ok); }
+a.card { text-decoration: none; color: var(--text); }
+a.card:hover { border-color: var(--accent); }
+.fisa { display: grid; grid-template-columns: max-content 1fr; gap: 0.4rem 1rem; margin: 1rem 0; }
+.fisa dt { color: var(--text-slab); }
+.fisa dd { margin: 0; }
+@media (max-width: 600px) { .fisa { grid-template-columns: 1fr; } .fisa dd { margin-bottom: 0.5rem; } }
+.pasi { display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: flex-start; }

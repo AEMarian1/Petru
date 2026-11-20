@@ -1,0 +1,7 @@
+Nr. înregistrare;Data;Emitent;Conținut;Compartiment;Sens;La nr.;Destinatar;Mod primire
+9001;02.11.2026;Exemplu Ana (probă);Cerere de certificat de urbanism (probă);Urbanism;intrare;;;ghișeu
+9002;03.11.2026;Probescu Ion (probă);Petiție privind iluminatul public pe Strada Exemplu (probă);;intrare;;;e-mail
+9003;04.11.2026;Testeanu Servicii SRL (probă);Cerere de informații publice, Legea 544/2001 (probă);Secretarul general;intrare;;;platformă online
+9004;05.11.2026;Inventatu Maria (probă);Cerere de certificat de atestare fiscală (probă);Taxe și impozite;intrare;;;ghișeu
+9005;06.11.2026;Instituția Exemplu (probă);Adresă privind o situație statistică (probă);Contabilitate;intrare;;;poștă
+9006;10.11.2026;;Răspuns la cererea de informații publice (probă);Secretarul general;ieșire;9003;Testeanu Servicii SRL (probă);

@@ -4,7 +4,7 @@
 
 Petru poate servi mai multe entități, fiecare cu datele ei: **primăria** și **serviciul de salubrizare** (formă juridică distinctă). Utilizatorii, rolurile și compartimentele aparțin unei entități. Un administrator vede și schimbă numai entitatea lui.
 
-> Pasul următor de siguranță: izolarea entităților și în bază (securitate la nivel de rând), după `docs/arhitectura-date.md`. Acum izolarea e făcută în aplicație.
+> Documentele și importurile sunt izolate și în bază (securitate la nivel de rând, migrarea `0004`); vezi [`registratura.md`](registratura.md). Celelalte tabele sunt izolate în aplicație.
 
 ## Drepturile (funcționalitățile)
 
