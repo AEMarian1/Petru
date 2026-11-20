@@ -129,3 +129,12 @@ export function ziNelucratoare(termen: string): string | null {
   if (s) return s.nume;
   return new Date(`${termen}T12:00:00Z`).getUTCDay() === 0 ? "duminică" : "sâmbătă";
 }
+
+/**
+ * Compartimentul propune prelungirea; o hotărăște conducătorul instituției (OG 27/2002, art. 9).
+ * Propunerea se poate face cât timp prelungirea e încă posibilă și nu există deja una.
+ */
+export function poatePropunePrelungirea(c: Ceas, propusaLa: string | null, azi: string): Verificare {
+  if (propusaLa) return { da: false, motiv: "Prelungirea e deja propusă; așteaptă hotărârea conducătorului." };
+  return poatePrelungi(c, azi);
+}

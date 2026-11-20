@@ -227,3 +227,21 @@ export async function randurileRaportului(tx: Tranzactie, v: Vedere, fel: FelCer
     solutie: r.solutie, reclamatieLa: r.reclamatieLa, reclamatieSolutie: r.reclamatieSolutie, plangereInstanta: r.plangereInstanta,
   }));
 }
+
+/** Ce așteaptă conducerea: răspunsuri de semnat sau de contrasemnat, prelungiri propuse. */
+export async function deLaConducere(tx: Tranzactie, v: Vedere) {
+  const [r] = await tx
+    .select({
+      deSemnat: sql<number>`count(*) filter (where ${documente.stare} = 'la_semnat' and ${documente.semnatLa} is null)::int`,
+      deContrasemnat: sql<number>`count(*) filter (where ${documente.stare} = 'la_semnat' and ${documente.contrasemnatLa} is null)::int`,
+    })
+    .from(documente)
+    .where(and(eq(documente.directie, "intrare"), conditiaVederii(v)));
+  const prelungiri = await tx
+    .select({ docId: documente.id, numar: documente.numar, an: documente.an, continut: documente.continut, motiv: ceasuri.prelungireMotiv, termen: ceasuri.termen })
+    .from(ceasuri)
+    .innerJoin(documente, eq(documente.id, ceasuri.documentId))
+    .where(and(sql`${ceasuri.prelungirePropusaLa} is not null`, isNull(ceasuri.prelungitLa), isNull(ceasuri.opritLa), conditiaVederii(v)))
+    .orderBy(asc(ceasuri.termen));
+  return { deSemnat: r?.deSemnat ?? 0, deContrasemnat: r?.deContrasemnat ?? 0, prelungiri };
+}

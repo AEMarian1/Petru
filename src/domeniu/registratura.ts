@@ -79,7 +79,7 @@ export const PASI: Record<Pas, { nume: string; facut: string; spre: Stare; drept
   repartizeaza: { nume: "Repartizează", facut: "a repartizat", spre: "repartizat", drept: ["documente.repartizeaza"], peCompartiment: false },
   preia: { nume: "Preia în lucru", facut: "a preluat în lucru", spre: "in_lucru", drept: ["documente.rezolva"], peCompartiment: true },
   la_semnat: { nume: "Răspunsul e la semnat", facut: "a dat răspunsul la semnat", spre: "la_semnat", drept: ["documente.rezolva"], peCompartiment: true },
-  inapoi_in_lucru: { nume: "Înapoi în lucru", facut: "a întors în lucru", spre: "in_lucru", drept: ["documente.rezolva", "documente.semneaza"], peCompartiment: true },
+  inapoi_in_lucru: { nume: "Înapoi în lucru", facut: "a întors în lucru", spre: "in_lucru", drept: ["documente.rezolva", "documente.semneaza", "documente.contrasemneaza"], peCompartiment: true },
   iesire: { nume: "Răspunsul a plecat (ieșirea)", facut: "a înregistrat ieșirea", spre: "emis", drept: ["documente.inregistreaza", "documente.rezolva"], peCompartiment: true },
   claseaza: { nume: "Clasează fără răspuns", facut: "a clasat fără răspuns", spre: "arhivat", drept: ["documente.rezolva"], peCompartiment: true },
 };

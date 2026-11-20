@@ -25,7 +25,7 @@ export const ROLURI_PREDEFINITE: RolPredefinit[] = [
   {
     cheie: "secretar", nume: "Secretarul general", tipuri: ["primarie"],
     descriere: "Legalitatea actelor, repartizarea, consiliul local, registrele.",
-    permisiuni: ["documente.vede_tot", "documente.repartizeaza", "cereri.gestioneaza", "dispozitii.contrasemneaza", "consiliu.gestioneaza", "consiliu.vede", "publicare.aproba", "jurnal.citeste"],
+    permisiuni: ["documente.vede_tot", "documente.repartizeaza", "documente.contrasemneaza", "cereri.gestioneaza", "dispozitii.contrasemneaza", "consiliu.gestioneaza", "consiliu.vede", "publicare.aproba", "jurnal.citeste"],
   },
   {
     cheie: "registratura", nume: "Registratura", tipuri: ["primarie", "serviciu_public"],

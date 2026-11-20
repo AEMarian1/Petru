@@ -167,8 +167,17 @@ async function ceasSiCerere(
   const fel = felulDupaTermen(a.cheie, a.recunoscut);
   let motivPrelungire: string | null = null;
   const laPrelungire = adaugaZile(a.data, 3, "calendaristice");
+  let propusa: string | null = null;
   if (fel && a.zar() < 0.3 && laPrelungire <= azi && poatePrelungi(c, laPrelungire).da) {
-    c = prelungeste(c, laPrelungire);
+    // Unele prelungiri sunt hotărâte de conducător; una, la o cerere deschisă, e doar propusă.
+    if (!a.opritLa && a.zar() < 0.5) {
+      propusa = laPrelungire;
+      motivPrelungire = "cere o cercetare la fața locului (probă)";
+    } else {
+      c = prelungeste(c, laPrelungire);
+    }
+  }
+  if (c.prelungitLa) {
     motivPrelungire = fel === "petitie" ? "cere o cercetare la fața locului (probă)" : "informația trebuie adunată din mai multe compartimente (probă)";
   }
   let solutie: Solutie | null = null;
@@ -188,7 +197,7 @@ async function ceasSiCerere(
   }
   await tx.insert(s.ceasuri).values({
     entitateId: a.entitateId, documentId: a.documentId, regula: c.regula, pornitLa: c.pornitLa, termenInitial: c.termenInitial, termen: c.termen,
-    prelungitLa: c.prelungitLa, prelungireMotiv: motivPrelungire, instiintare: motivPrelungire ? "adresă de ieșire (probă)" : null, opritLa: c.opritLa, motivOprire,
+    prelungirePropusaLa: propusa, prelungitLa: c.prelungitLa, prelungireMotiv: motivPrelungire, instiintare: motivPrelungire ? "adresă de ieșire (probă)" : null, opritLa: c.opritLa, motivOprire,
   });
   if (c.termen !== c.termenInitial) await tx.update(s.documente).set({ termen: c.termen }).where(sql`${s.documente.id} = ${a.documentId}`);
   if (!fel) return;
@@ -238,6 +247,9 @@ async function documenteDeProba(db: Db, primariaId: string, salubrizareId: strin
           tip: t.tip, continut: `${t.tip} (probă)`, emitentId: persoaneIds[i % persoaneIds.length]!,
           compartimentId: stare === "inregistrat" ? null : compId.get(t.compartiment), stare,
           termen, termenCheie: tl.cheie, termenRecunoscut: recunoscut,
+          // La semnat: unele răspunsuri sunt deja semnate de conducător, mai puține și contrasemnate.
+          ...(stare === "la_semnat" && i % 2 === 0 ? { semnatLa: azi } : {}),
+          ...(stare === "la_semnat" && i % 4 === 0 ? { contrasemnatLa: azi } : {}),
         })
         .returning({ id: s.documente.id, an: s.documente.an, numar: s.documente.numar });
       await tx.insert(s.jurnal).values({ utilizatorId: registraturaId, actiune: "a înregistrat", entitate: "document", entitateId: doc!.id, detalii: { numar: doc!.numar, proba: true } });

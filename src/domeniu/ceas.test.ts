@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { inTermen, jaloanele, opreste, poatePrelungi, pornesteCeasul, prelungeste, stareaCeasului, ziNelucratoare } from "./ceas";
+import { inTermen, jaloanele, opreste, poatePrelungi, poatePropunePrelungirea, pornesteCeasul, prelungeste, stareaCeasului, ziNelucratoare } from "./ceas";
 
 describe("ceasul termenelor", () => {
   it("pornește cu termenul legii", () => {
@@ -57,5 +57,12 @@ describe("ceasul termenelor", () => {
     expect(ziNelucratoare("2026-11-30")).toBe("Sfântul Andrei");
     expect(ziNelucratoare("2026-11-22")).toBe("duminică");
     expect(ziNelucratoare("2026-11-20")).toBeNull();
+  });
+
+  it("compartimentul propune o singură dată, cât timp prelungirea e posibilă", () => {
+    const c = pornesteCeasul("petitie", "2026-11-02");
+    expect(poatePropunePrelungirea(c, null, "2026-11-20").da).toBe(true);
+    expect(poatePropunePrelungirea(c, "2026-11-19", "2026-11-20").da).toBe(false);
+    expect(poatePropunePrelungirea(c, null, "2026-12-03").da).toBe(false);
   });
 });

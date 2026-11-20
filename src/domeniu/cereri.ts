@@ -212,3 +212,17 @@ export function raportul544(randuri: RandRaport[], p: Perioada, azi: string) {
     peCompartimente: peChei(r.map((x) => x.compartiment), "nerepartizate"),
   };
 }
+
+/* ---------- Semnăturile pe răspuns ---------- */
+
+/**
+ * Răspunsul la o petiție sau la o cerere 544 îl redactează compartimentul, îl semnează conducătorul
+ * și îl contrasemnează secretarul general (așa lucrează instituția; răspunsul autorului din 20.11.2026).
+ * Întoarce ce lipsește înainte ca răspunsul să plece.
+ */
+export function semnaturiLipsa(d: { semnatLa: string | null; contrasemnatLa: string | null }): string[] {
+  const lipsa: string[] = [];
+  if (!d.semnatLa) lipsa.push("semnătura conducătorului");
+  if (!d.contrasemnatLa) lipsa.push("contrasemnătura secretarului general");
+  return lipsa;
+}

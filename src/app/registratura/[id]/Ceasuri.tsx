@@ -1,13 +1,18 @@
 import { caCeas, type RandCeas } from "@/baza/ceasuri";
-import { jaloanele, poatePrelungi, stareaCeasului, termenulPrelungit, ultimaZiDePrelungire, ziNelucratoare, zileIntre, inTermen } from "@/domeniu/ceas";
+import { jaloanele, poatePrelungi, poatePropunePrelungirea, stareaCeasului, termenulPrelungit, ultimaZiDePrelungire, ziNelucratoare, zileIntre, inTermen } from "@/domeniu/ceas";
 import { termenul } from "@/domeniu/termene";
 import { dataRo } from "@/componente/format";
-import { prelungesteTermenul } from "../actiuni";
+import { hotarastePrelungirea, propunePrelungireaTermenului, respingePrelungirea } from "../actiuni";
 
 const ETICHETE_CEAS = { depasit: "Termen depășit", aproape: "Scade în curând", in_termen: "În termen", oprit: "Oprit" } as const;
 
-/** Ceasurile termenelor unui document: termenul, prelungirea, jaloanele și oprirea. */
-export function Ceasuri({ ceasuri, azi, poatePrelungiDreptul }: { ceasuri: RandCeas[]; azi: string; poatePrelungiDreptul: boolean }) {
+type Rand = RandCeas & { propusDeNume: string | null; prelungitDeNume: string | null };
+
+/**
+ * Ceasurile termenelor unui document: termenul, prelungirea, jaloanele și oprirea.
+ * Prelungirea o propune compartimentul și o hotărăște conducătorul instituției.
+ */
+export function Ceasuri({ ceasuri, azi, poatePropune, poateHotari }: { ceasuri: Rand[]; azi: string; poatePropune: boolean; poateHotari: boolean }) {
   if (ceasuri.length === 0) return null;
   return (
     <>
@@ -41,7 +46,7 @@ export function Ceasuri({ ceasuri, azi, poatePrelungiDreptul }: { ceasuri: RandC
                 <>
                   <dt>Prelungit</dt>
                   <dd>
-                    la {dataRo(c.prelungitLa)}, de la {dataRo(c.termenInitial)} la {dataRo(c.termen)}
+                    la {dataRo(c.prelungitLa)}{r.prelungitDeNume && `, hotărâtă de ${r.prelungitDeNume}`}, de la {dataRo(c.termenInitial)} la {dataRo(c.termen)}
                     {r.prelungireMotiv && ` — ${r.prelungireMotiv}`}
                     {r.instiintare && <span className="slab"> · înștiințare: {r.instiintare}</span>}
                   </dd>
@@ -70,16 +75,35 @@ export function Ceasuri({ ceasuri, azi, poatePrelungiDreptul }: { ceasuri: RandC
                 </ul>
               </>
             )}
-            {poatePrelungiDreptul && prel.da && termenNou && (
-              <form action={prelungesteTermenul} className="rand-formular">
+            {r.prelungirePropusaLa && !c.prelungitLa && !c.opritLa && (
+              <p className="nota">
+                Prelungire propusă la {dataRo(r.prelungirePropusaLa)}{r.propusDeNume && ` de ${r.propusDeNume}`}: {r.prelungireMotiv}.
+                {" "}Așteaptă hotărârea conducătorului{ultima && `, cel târziu la ${dataRo(ultima)}`}.
+              </p>
+            )}
+            {poateHotari && prel.da && termenNou && (
+              <form action={hotarastePrelungirea} className="rand-formular">
                 <input type="hidden" name="ceas" value={r.id} />
                 <div><label htmlFor={`prel-data-${r.id}`}>Prelungire hotărâtă la</label><input id={`prel-data-${r.id}`} name="data" type="date" required defaultValue={azi} min={c.pornitLa} max={ultima && ultima < azi ? ultima : azi} /></div>
-                <div><label htmlFor={`prel-motiv-${r.id}`}>Motivul</label><input id={`prel-motiv-${r.id}`} name="motiv" type="text" required placeholder="de pildă: cere o cercetare la fața locului" /></div>
+                {!r.prelungirePropusaLa && <div><label htmlFor={`prel-motiv-${r.id}`}>Motivul</label><input id={`prel-motiv-${r.id}`} name="motiv" type="text" required /></div>}
                 <div><label htmlFor={`prel-inst-${r.id}`}>Înștiințarea solicitantului</label><input id={`prel-inst-${r.id}`} name="instiintare" type="text" placeholder="nr. adresei de ieșire sau e-mailul" /></div>
-                <button className="buton buton-mic" type="submit">Prelungește până la {dataRo(termenNou)}</button>
+                <button className="buton buton-mic" type="submit">Hotărăște prelungirea până la {dataRo(termenNou)}</button>
               </form>
             )}
-            {poatePrelungiDreptul && !prel.da && !c.opritLa && t?.prelungire && <p className="slab">Prelungirea nu mai e posibilă: {prel.motiv}</p>}
+            {poateHotari && r.prelungirePropusaLa && !c.prelungitLa && !c.opritLa && (
+              <form action={respingePrelungirea} style={{ marginTop: "0.5rem" }}>
+                <input type="hidden" name="ceas" value={r.id} />
+                <button className="buton-text" type="submit">Nu aprob prelungirea</button>
+              </form>
+            )}
+            {!poateHotari && poatePropune && poatePropunePrelungirea(c, r.prelungirePropusaLa, azi).da && termenNou && (
+              <form action={propunePrelungireaTermenului} className="rand-formular">
+                <input type="hidden" name="ceas" value={r.id} />
+                <div><label htmlFor={`prel-motiv-${r.id}`}>Motivul</label><input id={`prel-motiv-${r.id}`} name="motiv" type="text" required placeholder="de pildă: cere o cercetare la fața locului" /></div>
+                <button className="buton buton-mic" type="submit">Propune conducătorului prelungirea până la {dataRo(termenNou)}</button>
+              </form>
+            )}
+            {(poateHotari || poatePropune) && !prel.da && !c.opritLa && t?.prelungire && <p className="slab">Prelungirea nu mai e posibilă: {prel.motiv}</p>}
           </section>
         );
       })}

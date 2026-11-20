@@ -125,6 +125,7 @@ Autorul unește PR-urile #12, #13, #14. Se construiește 0.1.x (ceasul termenelo
 | O cerere e un document din registru, nu un registru paralel; redirecționarea, clasarea și conexarea o închid fără răspuns în fond (înregistrat/repartizat → arhivat) | `docs/termene.md`, `src/domeniu/drumul-actului.ts` |
 | Drept nou `cereri.gestioneaza` și rol nou „Responsabilul cu petițiile și informațiile publice”; secretarul general primește dreptul | `docs/utilizatori-si-roluri.md` |
 | Petiția o ține fiecare compartiment (termenul și răspunsul); compartimentul își vede registrul și raportul și stabilește felul cererii | `docs/termene.md` |
+| Prelungirea o propune compartimentul și o hotărăște conducătorul; răspunsul la cerere pleacă numai semnat de conducător și contrasemnat de secretarul general (drept nou `documente.contrasemneaza`) | `docs/termene.md` |
 
 ### Ce s-a construit
 
@@ -135,7 +136,7 @@ Autorul unește PR-urile #12, #13, #14. Se construiește 0.1.x (ceasul termenelo
 ### Întrebări deschise
 
 1. J13–J17 din `docs/termene.md` (termenul căzut în zi nelucrătoare, redirecționarea în 5 zile, prelungirea petiției, reclamația 544, lista sărbătorilor).
-2. Cine e azi responsabilul cu Legea 544 (funcția) și cine hotărăște prelungirea petiției. Petițiile: **le ține fiecare compartiment**, care ține termenul și dă răspunsul (răspunsul autorului; aplicat în acest PR).
+2. Cine e azi responsabilul cu Legea 544 (funcția). Prelungirea: o hotărăște conducătorul (răspunsul autorului; aplicat). Petițiile: **le ține fiecare compartiment**, care ține termenul și dă răspunsul (răspunsul autorului; aplicat în acest PR).
 3. Ce coloane are exportul SOBIS: autorul nu știe. De aflat de la cine folosește modulul de registratură sau de la furnizor (numai numele coloanelor). Până atunci, felul cererii îl stabilește compartimentul din fișă, când nu se recunoaște singur.
 4. Rămân întrebările din sesiunile 1 și 2.
 

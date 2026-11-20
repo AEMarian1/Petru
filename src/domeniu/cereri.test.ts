@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { anul, felulDupaTermen, poateAveaReclamatie, raportul544, raportulPetitiilor, redirectionareInTermen, refuzInTermen, semestrul, type RandRaport } from "./cereri";
+import { anul, felulDupaTermen, semnaturiLipsa, poateAveaReclamatie, raportul544, raportulPetitiilor, redirectionareInTermen, refuzInTermen, semestrul, type RandRaport } from "./cereri";
 
 const rand = (x: Partial<RandRaport>): RandRaport => ({
   fel: "petitie", data: "2026-03-02", canal: "ghiseu", solicitant: "fizica", compartiment: "Urbanism",
@@ -76,5 +76,13 @@ describe("rapoartele", () => {
     expect(r.reclamatii).toEqual({ total: 2, admise: 0, respinse: 1, inLucru: 1 });
     expect(r.plangeriInstanta).toBe(1);
     expect(r.inLucruCuTermenDepasit).toBe(1);
+  });
+});
+
+describe("semnăturile pe răspuns", () => {
+  it("cer semnătura conducătorului și contrasemnătura secretarului general", () => {
+    expect(semnaturiLipsa({ semnatLa: null, contrasemnatLa: null })).toEqual(["semnătura conducătorului", "contrasemnătura secretarului general"]);
+    expect(semnaturiLipsa({ semnatLa: "2026-11-20", contrasemnatLa: null })).toEqual(["contrasemnătura secretarului general"]);
+    expect(semnaturiLipsa({ semnatLa: "2026-11-20", contrasemnatLa: "2026-11-20" })).toEqual([]);
   });
 });

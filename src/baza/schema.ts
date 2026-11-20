@@ -171,6 +171,11 @@ export const documente = petru.table(
     modExpediere: modExpediere("mod_expediere"),
     expediatLa: date("expediat_la"),
     confirmatLa: date("confirmat_la"),
+    /** Semnătura conducătorului și contrasemnătura secretarului general pe răspuns (la semnat). */
+    semnatLa: date("semnat_la"),
+    semnatDe: uuid("semnat_de").references(() => utilizatori.id),
+    contrasemnatLa: date("contrasemnat_la"),
+    contrasemnatDe: uuid("contrasemnat_de").references(() => utilizatori.id),
     importId: uuid("import_id").references(() => importuri.id),
     creatLa: creatLa(),
     actualizatLa: timestamp("actualizat_la", { withTimezone: true }).notNull().defaultNow(),
@@ -211,7 +216,11 @@ export const ceasuri = petru.table(
     pornitLa: date("pornit_la").notNull(),
     termenInitial: date("termen_initial").notNull(),
     termen: date("termen").notNull(),
+    /** Propunerea compartimentului; prelungirea o hotărăște conducătorul instituției. */
+    prelungirePropusaLa: date("prelungire_propusa_la"),
+    prelungirePropusaDe: uuid("prelungire_propusa_de").references(() => utilizatori.id),
     prelungitLa: date("prelungit_la"),
+    prelungitDe: uuid("prelungit_de").references(() => utilizatori.id),
     prelungireMotiv: text("prelungire_motiv"),
     /** Cum a fost înștiințat solicitantul despre prelungire (de pildă, numărul adresei de ieșire). */
     instiintare: text("instiintare"),

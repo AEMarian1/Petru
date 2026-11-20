@@ -8,7 +8,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { adresaBazei, bazaDeDate, creeazaPool } from "./conexiune";
 import { caSistem, inEntitate, type Tranzactie } from "./entitate";
 import { ceasuri, cereri, documente, entitati, utilizatori } from "./schema";
-import { ceasurileDocumentului, prelungesteCeasul } from "./ceasuri";
+import { ceasurileDocumentului, prelungesteCeasul, propunePrelungirea, respingePropunerea } from "./ceasuri";
 import { cerereaDocumentului, inchideCererea, primesteReclamatia, randurileRaportului, registrulCererilor, scrieSolutia, solutiaReclamatiei, stabilesteFelul } from "./cereri";
 import { creeazaIesirea } from "./registratura";
 import { anul, raportul544 } from "@/domeniu/cereri";
@@ -123,5 +123,29 @@ describe.skipIf(!adresa)("ceasul termenelor și cererile în bază", () => {
     expect(r.deschise).toContain(990_011);
     expect(r.deschise).not.toContain(990_012);
     expect(r.ceasC.opritLa).toBe("2026-11-07");
+  });
+
+  it("prelungirea: compartimentul o propune, conducătorul o respinge sau o hotărăște", async () => {
+    const primaria = await entitatea("primaria");
+    const u = await unUtilizator(primaria.id);
+    const r = await siAnuleaza(primaria.id, async (tx) => {
+      const d = await documentNou(tx, primaria.id, 990_021, "2026-11-02", "Sesizare care cere cercetare (probă)");
+      await stabilesteFelul(tx, { entitateId: primaria.id, utilizatorId: u, documentId: d.id, fel: "petitie", solicitant: "fizica" });
+      const [c] = await ceasurileDocumentului(tx, d.id);
+      await propunePrelungirea(tx, { ceasId: c!.id, azi: "2026-11-20", motiv: "cercetare la fața locului (probă)", utilizatorId: u });
+      await expect(propunePrelungirea(tx, { ceasId: c!.id, azi: "2026-11-20", motiv: "x", utilizatorId: u })).rejects.toThrow(/deja propusă/);
+      const propusa = (await ceasurileDocumentului(tx, d.id))[0]!;
+      await respingePropunerea(tx, { ceasId: c!.id, utilizatorId: u });
+      const respinsa = (await ceasurileDocumentului(tx, d.id))[0]!;
+      await propunePrelungirea(tx, { ceasId: c!.id, azi: "2026-11-20", motiv: "cercetare la fața locului (probă)", utilizatorId: u });
+      await prelungesteCeasul(tx, { ceasId: c!.id, la: "2026-11-21", motiv: null, instiintare: "adresă (probă)", utilizatorId: u });
+      return { propusa, respinsa, final: (await ceasurileDocumentului(tx, d.id))[0]! };
+    });
+    expect(r.propusa.termen).toBe("2026-12-02");
+    expect(r.propusa.prelungirePropusaLa).toBe("2026-11-20");
+    expect(r.respinsa.prelungirePropusaLa).toBeNull();
+    expect(r.final.termen).toBe("2026-12-17");
+    expect(r.final.prelungireMotiv).toBe("cercetare la fața locului (probă)");
+    expect(r.final.prelungitDe).not.toBeNull();
   });
 });

@@ -12,7 +12,7 @@ import type { Stare } from "@/domeniu/drumul-actului";
 import { felulDupaTermen } from "@/domeniu/cereri";
 import { opresteCeasurile, pornesteCeasulDocumentului } from "./ceasuri";
 
-export type FiltruTermen = "depasit" | "aproape" | "deschise" | "fara_confirmare" | "toate";
+export type FiltruTermen = "depasit" | "aproape" | "deschise" | "la_semnat" | "fara_confirmare" | "toate";
 
 export type Filtre = { cauta?: string; termen?: FiltruTermen; compartimentId?: string; directie?: "intrare" | "iesire" };
 
@@ -45,6 +45,7 @@ export async function listaRegistrului(tx: Tranzactie, v: Vedere, f: Filtre, azi
   if (f.termen === "depasit") conditii.push(inArray(documente.stare, DESCHISE), sql`${documente.termen} < ${azi}`);
   if (f.termen === "aproape") conditii.push(inArray(documente.stare, DESCHISE), sql`${documente.termen} >= ${azi}`, sql`${documente.termen} <= ${limitaAproape}`);
   if (f.termen === "deschise") conditii.push(inArray(documente.stare, DESCHISE), eq(documente.directie, "intrare"));
+  if (f.termen === "la_semnat") conditii.push(eq(documente.stare, "la_semnat"), eq(documente.directie, "intrare"));
   if (f.termen === "fara_confirmare") conditii.push(eq(documente.directie, "iesire"), isNull(documente.confirmatLa));
 
   return tx

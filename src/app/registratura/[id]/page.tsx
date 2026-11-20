@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, inArray } from "drizzle-orm";
 import { cere } from "@/autentificare/utilizator";
 import { db } from "@/baza/db";
 import { inEntitate } from "@/baza/entitate";
-import { compartimente } from "@/baza/schema";
+import { compartimente, utilizatori } from "@/baza/schema";
 import { fisaDocumentului } from "@/baza/registratura";
 import { ceasurileDocumentului } from "@/baza/ceasuri";
 import { fisaCererii } from "@/baza/cereri";
-import { ETICHETE_SOLUTIE, SOLUTII_LA_RASPUNS, type Inchidere } from "@/domeniu/cereri";
+import { ETICHETE_SOLUTIE, semnaturiLipsa, SOLUTII_LA_RASPUNS, type Inchidere } from "@/domeniu/cereri";
 import { Ceasuri } from "./Ceasuri";
 import { Cererea } from "./Cererea";
 import { ETICHETE, STARI } from "@/domeniu/drumul-actului";
@@ -16,7 +16,7 @@ import { ETICHETE_CANAL } from "@/domeniu/import-registru";
 import { aziInRomania, ETICHETE_EXPEDIERE, ETICHETE_TERMEN, PASI, pasiiPosibili, stareaTermenului, vedereaRegistrului, zileIntre, type ModExpediere } from "@/domeniu/registratura";
 import { termenul } from "@/domeniu/termene";
 import { dataRo } from "@/componente/format";
-import { confirmaPrimirea, facePasul, inregistreazaIesirea } from "../actiuni";
+import { confirmaPrimirea, facePasul, inregistreazaIesirea, semneazaRaspunsul } from "../actiuni";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
@@ -54,6 +54,11 @@ export default async function Fisa({ params }: { params: Promise<{ id: string }>
   const cerere = date.cerere?.cerere ?? null;
   const gestioneaza = u.poate("cereri.gestioneaza");
   const rezolva = u.poate("documente.rezolva", d.compartimentId);
+  const semnatari = [d.semnatDe, d.contrasemnatDe].filter((x): x is string => !!x);
+  const numeSemnatari = semnatari.length ? await b.select({ id: utilizatori.id, nume: utilizatori.numeAfisat }).from(utilizatori).where(inArray(utilizatori.id, semnatari)) : [];
+  const cine = (id: string | null) => numeSemnatari.find((x) => x.id === id)?.nume;
+  const lipsaSemnaturi = cerere ? semnaturiLipsa(d) : [];
+  const arataSemnaturile = intrare && (d.stare === "la_semnat" || !!d.semnatLa || !!d.contrasemnatLa);
   const inchideri: Inchidere[] = gestioneaza || rezolva ? ["redirectionata", "conexata", "clasata"] : u.poate("documente.inregistreaza") ? ["redirectionata"] : [];
 
   return (
@@ -90,6 +95,35 @@ export default async function Fisa({ params }: { params: Promise<{ id: string }>
           </>
         )}
       </dl>
+
+      {arataSemnaturile && (
+        <>
+          <h2>Semnăturile pe răspuns</h2>
+          <dl className="fisa">
+            <dt>Conducătorul</dt>
+            <dd>
+              {d.semnatLa ? `semnat la ${dataRo(d.semnatLa)}${cine(d.semnatDe) ? ` de ${cine(d.semnatDe)}` : ""}` : "nesemnat"}
+              {!d.semnatLa && d.stare === "la_semnat" && u.poate("documente.semneaza") && (
+                <form action={semneazaRaspunsul} style={{ display: "inline", marginLeft: "0.6rem" }}>
+                  <input type="hidden" name="id" value={d.id} /><input type="hidden" name="fel" value="semneaza" />
+                  <button className="buton buton-mic" type="submit">Semnez</button>
+                </form>
+              )}
+            </dd>
+            <dt>Secretarul general</dt>
+            <dd>
+              {d.contrasemnatLa ? `contrasemnat la ${dataRo(d.contrasemnatLa)}${cine(d.contrasemnatDe) ? ` de ${cine(d.contrasemnatDe)}` : ""}` : "necontrasemnat"}
+              {!d.contrasemnatLa && d.stare === "la_semnat" && u.poate("documente.contrasemneaza") && (
+                <form action={semneazaRaspunsul} style={{ display: "inline", marginLeft: "0.6rem" }}>
+                  <input type="hidden" name="id" value={d.id} /><input type="hidden" name="fel" value="contrasemneaza" />
+                  <button className="buton buton-mic" type="submit">Contrasemnez</button>
+                </form>
+              )}
+            </dd>
+          </dl>
+          {cerere && d.stare === "la_semnat" && lipsaSemnaturi.length > 0 && <p className="nota">Răspunsul la cerere pleacă după semnătura conducătorului și contrasemnătura secretarului general. Lipsește: {lipsaSemnaturi.join(", ")}.</p>}
+        </>
+      )}
 
       <h2>Drumul actului</h2>
       <ol className="drum">
@@ -136,7 +170,7 @@ export default async function Fisa({ params }: { params: Promise<{ id: string }>
       )}
 
       {intrare && (
-        <Ceasuri ceasuri={date.ceasuri} azi={azi} poatePrelungiDreptul={gestioneaza || rezolva} />
+        <Ceasuri ceasuri={date.ceasuri} azi={azi} poatePropune={gestioneaza || rezolva} poateHotari={u.poate("documente.semneaza")} />
       )}
 
       {intrare && (cerere || u.poate("documente.inregistreaza") || gestioneaza || rezolva) && (
@@ -168,6 +202,7 @@ export default async function Fisa({ params }: { params: Promise<{ id: string }>
                 );
               }
               if (p === "iesire") {
+                if (lipsaSemnaturi.length) return null;
                 return (
                   <form key={p} action={inregistreazaIesirea} className="card rand-formular">
                     <input type="hidden" name="id" value={d.id} />

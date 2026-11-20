@@ -15,6 +15,7 @@ const FILTRE_TERMEN: { cheie: FiltruTermen; nume: string }[] = [
   { cheie: "deschise", nume: "Fără răspuns" },
   { cheie: "depasit", nume: "Termen depășit" },
   { cheie: "aproape", nume: "Scad în curând" },
+  { cheie: "la_semnat", nume: "La semnat" },
   { cheie: "fara_confirmare", nume: "Ieșiri fără confirmare" },
 ];
 

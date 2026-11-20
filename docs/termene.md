@@ -39,10 +39,11 @@ O cerere e un document din registrul de intrare-ieșire, nu un registru paralel.
 | Pasul | Cine | Ce face Petru |
 |---|---|---|
 | **Felul** (petiție / 544 / niciuna) | compartimentul care lucrează documentul, registratura, responsabilul, secretarul general | La import, felul se pune singur când tipul e recunoscut sigur. Altfel, se alege din fișă și ceasul pornește după legea aleasă. Felul se schimbă numai până la soluție și până la prelungire. |
-| **Prelungirea** | biroul care lucrează cererea, responsabilul | după regulile de mai sus |
+| **Prelungirea** | **propune** compartimentul (sau responsabilul), cu motivul; **hotărăște** conducătorul instituției | Termenul se mută numai la hotărâre, după regulile de mai sus; data hotărârii trebuie să fie în limita legii. Conducătorul poate respinge propunerea. Propunerile așteaptă pe panoul conducătorului. |
 | **Redirecționarea** | registratura, biroul, responsabilul | instituția competentă și, opțional, numărul adresei de ieșire. Ieșirea se leagă de cerere. După 5 zile se marchează „după cele 5 zile”. |
 | **Conexarea** | biroul, responsabilul | Aceeași problemă, același solicitant: cererea se leagă de cererea de bază și primește același răspuns. Se conexează numai cereri de același fel. |
 | **Clasarea** | biroul, responsabilul | Cu motiv: de pildă, o petiție anonimă sau fără date de identificare (OG 27/2002, art. 7), ori trimisă din nou după răspuns. |
+| **Semnarea** | conducătorul semnează, secretarul general contrasemnează | Răspunsul redactat de compartiment ajunge „la semnat”. Ieșirea unei petiții sau a unei cereri 544 se poate înregistra numai după ambele semnături. Răspunsul întors în lucru își pierde semnăturile. Panoul conducerii arată ce e de semnat. |
 | **Răspunsul** | biroul, registratura | Ieșirea cere soluția: favorabilă sau nefavorabilă la petiții; la Legea 544, comunicată, parțial, respinsă ca exceptată sau ca inexistentă. |
 | **Reclamația administrativă** (544) | responsabilul | După un refuz, un răspuns parțial sau lipsa răspunsului. Pornește ceasul de 15 zile; apoi se scrie soluția (admisă sau respinsă) și eventuala plângere în instanță. |
 
@@ -78,7 +79,7 @@ Structura exactă a raportului semestrial (OG 27/2002) și a raportului anual (a
 | Registratura | nu vede registrele | fișa de înregistrare; poate stabili felul și redirecționa |
 | Funcționarul de compartiment | **cererile compartimentului său, cu raportul lor** | cererile compartimentului; stabilește felul, ține termenul (prelungește), răspunde, clasează, conexează, redirecționează |
 
-**Cum se lucrează azi (răspunsul autorului, 20.11.2026):** petiția o ține fiecare compartiment: el ține termenul și dă răspunsul. Nu există un registru central al petițiilor ținut de o singură persoană. De aceea, în Petru, registrul petițiilor e o vedere peste registrul de intrare-ieșire: fiecare compartiment își vede petițiile; conducerea și responsabilul le văd pe toate, pentru raportul semestrial.
+**Cum se lucrează azi (răspunsul autorului, 20.11.2026):** petiția o ține fiecare compartiment: el ține termenul și dă răspunsul. Nu există un registru central al petițiilor ținut de o singură persoană. Prelungirea o stabilește conducătorul; răspunsul (sau înștiințarea) îl redactează compartimentul și îl semnează conducătorul și secretarul general. De aceea, în Petru, registrul petițiilor e o vedere peste registrul de intrare-ieșire: fiecare compartiment își vede petițiile; conducerea și responsabilul le văd pe toate, pentru raportul semestrial.
 
 ## Izolarea în bază
 
