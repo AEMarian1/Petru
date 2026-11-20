@@ -16,6 +16,7 @@ import { ROLURI_PREDEFINITE } from "../src/domeniu/roluri-predefinite";
 import { caSistem } from "../src/baza/entitate";
 import { aziInRomania, dataLimita, recunoasteTermenul } from "../src/domeniu/registratura";
 import { adaugaZile } from "../src/domeniu/termene";
+import { setareaInstitutiei } from "../src/domeniu/mediu";
 
 const LACAT_REFACERE = 7_202_611;
 const MIGRARI = { migrationsFolder: "migrari", migrationsSchema: "petru_migrari", migrationsTable: "migrari" };
@@ -76,17 +77,14 @@ async function pregatesteObservatiile(db: Db) {
 }
 
 async function incarcaDateDeProba(db: Db) {
-  await db.insert(s.institutie).values({
-    nume: process.env.PETRU_INSTITUTIE?.trim() || "Primăria Comunei Exemplu",
-    localitate: "Exemplu",
-    judet: "Județul Exemplu",
-  });
+  const institutia = setareaInstitutiei();
+  await db.insert(s.institutie).values(institutia);
 
   // Entitățile: primăria și serviciul de salubrizare (formă juridică distinctă), fiecare cu datele ei.
   const [primaria, salubrizare] = await db
     .insert(s.entitati)
     .values([
-      { cheie: "primaria", nume: process.env.PETRU_INSTITUTIE?.trim() || "Primăria Comunei Exemplu", tip: "primarie" },
+      { cheie: "primaria", nume: institutia.nume, tip: "primarie" },
       { cheie: "salubrizare", nume: "Serviciul de salubrizare (probă)", tip: "serviciu_public" },
     ])
     .returning({ id: s.entitati.id });

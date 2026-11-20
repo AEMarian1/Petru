@@ -35,3 +35,7 @@ Fără `DATABASE_URL`, comenzile nu fac nimic.
 
 - **Previzualizări și site-ul de test (Netlify):** comanda de construire rulează `db:refacere`, apoi construcția. Adresa bazei stă numai în setările Netlify. Pentru refacere se poate pune și `DATABASE_URL_DIRECTA` (conexiunea Neon fără pooler), ca lacătul de refacere să fie sigur.
 - **Producția (Azure):** numai `db:migreaza`, la instalarea unei versiuni; nicio refacere.
+
+## Setarea instituției
+
+Numele, localitatea și județul instituției sunt setări, nu cod. În mediile de probă se citesc din variabilele `PETRU_INSTITUTIE`, `PETRU_LOCALITATE` și `PETRU_JUDET` (setările Netlify) și se scriu în bază la refacere. Fără ele, rămân valorile „Exemplu”.
