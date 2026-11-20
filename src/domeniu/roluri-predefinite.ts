@@ -25,12 +25,17 @@ export const ROLURI_PREDEFINITE: RolPredefinit[] = [
   {
     cheie: "secretar", nume: "Secretarul general", tipuri: ["primarie"],
     descriere: "Legalitatea actelor, repartizarea, consiliul local, registrele.",
-    permisiuni: ["documente.vede_tot", "documente.repartizeaza", "dispozitii.contrasemneaza", "consiliu.gestioneaza", "consiliu.vede", "publicare.aproba", "jurnal.citeste"],
+    permisiuni: ["documente.vede_tot", "documente.repartizeaza", "documente.contrasemneaza", "cereri.gestioneaza", "dispozitii.contrasemneaza", "consiliu.gestioneaza", "consiliu.vede", "publicare.aproba", "jurnal.citeste"],
   },
   {
     cheie: "registratura", nume: "Registratura", tipuri: ["primarie", "serviciu_public"],
     descriere: "Înregistrează și repartizează; nu deschide răspunsurile compartimentelor.",
     permisiuni: ["documente.inregistreaza", "documente.repartizeaza"],
+  },
+  {
+    cheie: "responsabil_cereri", nume: "Responsabilul cu petițiile și informațiile publice", tipuri: ["primarie", "serviciu_public"],
+    descriere: "Ține registrul cererilor pe Legea 544 și reclamațiile administrative; vede toate petițiile și rapoartele. Petițiile le lucrează fiecare compartiment.",
+    permisiuni: ["cereri.gestioneaza"],
   },
   {
     cheie: "functionar", nume: "Funcționarul de compartiment", tipuri: ["primarie", "serviciu_public"],

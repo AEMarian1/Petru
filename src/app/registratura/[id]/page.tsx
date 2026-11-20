@@ -1,17 +1,22 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, inArray } from "drizzle-orm";
 import { cere } from "@/autentificare/utilizator";
 import { db } from "@/baza/db";
 import { inEntitate } from "@/baza/entitate";
-import { compartimente } from "@/baza/schema";
+import { compartimente, utilizatori } from "@/baza/schema";
 import { fisaDocumentului } from "@/baza/registratura";
+import { ceasurileDocumentului } from "@/baza/ceasuri";
+import { fisaCererii } from "@/baza/cereri";
+import { ETICHETE_SOLUTIE, semnaturiLipsa, SOLUTII_LA_RASPUNS, type Inchidere } from "@/domeniu/cereri";
+import { Ceasuri } from "./Ceasuri";
+import { Cererea } from "./Cererea";
 import { ETICHETE, STARI } from "@/domeniu/drumul-actului";
 import { ETICHETE_CANAL } from "@/domeniu/import-registru";
 import { aziInRomania, ETICHETE_EXPEDIERE, ETICHETE_TERMEN, PASI, pasiiPosibili, stareaTermenului, vedereaRegistrului, zileIntre, type ModExpediere } from "@/domeniu/registratura";
 import { termenul } from "@/domeniu/termene";
 import { dataRo } from "@/componente/format";
-import { confirmaPrimirea, facePasul, inregistreazaIesirea } from "../actiuni";
+import { confirmaPrimirea, facePasul, inregistreazaIesirea, semneazaRaspunsul } from "../actiuni";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
@@ -23,14 +28,21 @@ export default async function Fisa({ params }: { params: Promise<{ id: string }>
   if (vedere.fel === "nimic") redirect("/fara-drept");
   const b = db();
   if (!b) return <p className="eroare">Baza de date nu e configurată.</p>;
-  const fisa = await inEntitate(b, u.entitateId, (tx) => fisaDocumentului(tx, id, vedere));
-  if (!fisa) notFound();
+  const date = await inEntitate(b, u.entitateId, async (tx) => {
+    const fisa = await fisaDocumentului(tx, id, vedere);
+    if (!fisa) return null;
+    return { fisa, ceasuri: await ceasurileDocumentului(tx, id), cerere: await fisaCererii(tx, id) };
+  });
+  if (!date) notFound();
+  const { fisa } = date;
   const d = fisa.doc;
   const azi = aziInRomania();
   const intrare = d.directie !== "iesire";
   const st = intrare ? stareaTermenului(d.termen, d.stare, azi) : null;
   const tl = d.termenCheie ? termenul(d.termenCheie) : undefined;
   const pozitie = STARI.indexOf(d.stare);
+  // Clasat, redirecționat sau conexat fără răspuns propriu: emiterea și publicarea n-au avut loc.
+  const sarit = d.stare === "arhivat" && intrare && fisa.iesiri.length === 0;
   const comp = await b.select({ id: compartimente.id, nume: compartimente.nume }).from(compartimente).where(eq(compartimente.entitateId, u.entitateId)).orderBy(asc(compartimente.nume));
 
   const pasi = intrare
@@ -38,7 +50,16 @@ export default async function Fisa({ params }: { params: Promise<{ id: string }>
     : [];
   const poateConfirma = u.poate("documente.inregistreaza") || u.poate("documente.rezolva", d.compartimentId);
   // Registratura vede fișa de înregistrare; mersul din birou (urma pașilor) îl văd biroul și conducerea.
-  const vedeMersul = vedere.fel !== "fisa";
+  const vedeMersul = vedere.fel !== "fisa" || (u.poate("cereri.gestioneaza") && !!date.cerere);
+  const cerere = date.cerere?.cerere ?? null;
+  const gestioneaza = u.poate("cereri.gestioneaza");
+  const rezolva = u.poate("documente.rezolva", d.compartimentId);
+  const semnatari = [d.semnatDe, d.contrasemnatDe].filter((x): x is string => !!x);
+  const numeSemnatari = semnatari.length ? await b.select({ id: utilizatori.id, nume: utilizatori.numeAfisat }).from(utilizatori).where(inArray(utilizatori.id, semnatari)) : [];
+  const cine = (id: string | null) => numeSemnatari.find((x) => x.id === id)?.nume;
+  const lipsaSemnaturi = cerere ? semnaturiLipsa(d) : [];
+  const arataSemnaturile = intrare && (d.stare === "la_semnat" || !!d.semnatLa || !!d.contrasemnatLa);
+  const inchideri: Inchidere[] = gestioneaza || rezolva ? ["redirectionata", "conexata", "clasata"] : u.poate("documente.inregistreaza") ? ["redirectionata"] : [];
 
   return (
     <>
@@ -75,10 +96,39 @@ export default async function Fisa({ params }: { params: Promise<{ id: string }>
         )}
       </dl>
 
+      {arataSemnaturile && (
+        <>
+          <h2>Semnăturile pe răspuns</h2>
+          <dl className="fisa">
+            <dt>Conducătorul</dt>
+            <dd>
+              {d.semnatLa ? `semnat la ${dataRo(d.semnatLa)}${cine(d.semnatDe) ? ` de ${cine(d.semnatDe)}` : ""}` : "nesemnat"}
+              {!d.semnatLa && d.stare === "la_semnat" && u.poate("documente.semneaza") && (
+                <form action={semneazaRaspunsul} style={{ display: "inline", marginLeft: "0.6rem" }}>
+                  <input type="hidden" name="id" value={d.id} /><input type="hidden" name="fel" value="semneaza" />
+                  <button className="buton buton-mic" type="submit">Semnez</button>
+                </form>
+              )}
+            </dd>
+            <dt>Secretarul general</dt>
+            <dd>
+              {d.contrasemnatLa ? `contrasemnat la ${dataRo(d.contrasemnatLa)}${cine(d.contrasemnatDe) ? ` de ${cine(d.contrasemnatDe)}` : ""}` : "necontrasemnat"}
+              {!d.contrasemnatLa && d.stare === "la_semnat" && u.poate("documente.contrasemneaza") && (
+                <form action={semneazaRaspunsul} style={{ display: "inline", marginLeft: "0.6rem" }}>
+                  <input type="hidden" name="id" value={d.id} /><input type="hidden" name="fel" value="contrasemneaza" />
+                  <button className="buton buton-mic" type="submit">Contrasemnez</button>
+                </form>
+              )}
+            </dd>
+          </dl>
+          {cerere && d.stare === "la_semnat" && lipsaSemnaturi.length > 0 && <p className="nota">Răspunsul la cerere pleacă după semnătura conducătorului și contrasemnătura secretarului general. Lipsește: {lipsaSemnaturi.join(", ")}.</p>}
+        </>
+      )}
+
       <h2>Drumul actului</h2>
       <ol className="drum">
         {STARI.map((s, i) => (
-          <li key={s} className={i < pozitie ? "facut" : i === pozitie ? "acum" : ""}>{ETICHETE[s]}</li>
+          <li key={s} className={i === pozitie ? "acum" : i < pozitie && !(sarit && (s === "emis" || s === "publicat")) ? "facut" : ""}>{ETICHETE[s]}</li>
         ))}
       </ol>
 
@@ -119,6 +169,17 @@ export default async function Fisa({ params }: { params: Promise<{ id: string }>
         </form>
       )}
 
+      {intrare && (
+        <Ceasuri ceasuri={date.ceasuri} azi={azi} poatePropune={gestioneaza || rezolva} poateHotari={u.poate("documente.semneaza")} />
+      )}
+
+      {intrare && (cerere || u.poate("documente.inregistreaza") || gestioneaza || rezolva) && (
+        <Cererea
+          docId={d.id} stare={d.stare} dataInregistrare={d.dataInregistrare.toISOString().slice(0, 10)} fisa={date.cerere} azi={azi} anul={d.an}
+          drepturi={{ felul: gestioneaza || rezolva || u.poate("documente.inregistreaza"), inchideri, reclamatia: gestioneaza }}
+        />
+      )}
+
       {pasi.length > 0 && (
         <>
           <h2>Pasul următor</h2>
@@ -141,6 +202,7 @@ export default async function Fisa({ params }: { params: Promise<{ id: string }>
                 );
               }
               if (p === "iesire") {
+                if (lipsaSemnaturi.length) return null;
                 return (
                   <form key={p} action={inregistreazaIesirea} className="card rand-formular">
                     <input type="hidden" name="id" value={d.id} />
@@ -153,6 +215,15 @@ export default async function Fisa({ params }: { params: Promise<{ id: string }>
                       </select>
                     </div>
                     <div><label htmlFor="destinatar">Destinatarul</label><input id="destinatar" name="destinatar" type="text" defaultValue={d.emitentText ?? ""} /></div>
+                    {cerere && !cerere.solutie && (
+                      <div>
+                        <label htmlFor="solutie">Soluția</label>
+                        <select id="solutie" name="solutie" required defaultValue="">
+                          <option value="" disabled>— alegeți —</option>
+                          {SOLUTII_LA_RASPUNS[cerere.fel].map((x) => <option key={x} value={x}>{ETICHETE_SOLUTIE[x]}</option>)}
+                        </select>
+                      </div>
+                    )}
                     <button className="buton buton-mic" type="submit">Răspunsul a plecat</button>
                   </form>
                 );

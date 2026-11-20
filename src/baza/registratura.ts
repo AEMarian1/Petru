@@ -3,20 +3,28 @@
  * Toate funcțiile primesc o tranzacție deschisă cu `inEntitate`, deci văd numai entitatea utilizatorului.
  */
 import { and, asc, desc, eq, ilike, inArray, isNull, or, sql, type SQL } from "drizzle-orm";
-import { compartimente, documente, importuri, jurnal, persoane, utilizatori } from "./schema";
+import { cereri, compartimente, documente, importuri, jurnal, persoane, utilizatori } from "./schema";
 import type { Tranzactie } from "./entitate";
 import { gasesteCompartimentul, type EroareRand, type Potrivire, type RandImportat } from "@/domeniu/import-registru";
 import { dataLimita, esteRezolvat, recunoasteTermenul, ZILE_AVERTIZARE, type Vedere } from "@/domeniu/registratura";
 import { adaugaZile } from "@/domeniu/termene";
 import type { Stare } from "@/domeniu/drumul-actului";
+import { felulDupaTermen } from "@/domeniu/cereri";
+import { opresteCeasurile, pornesteCeasulDocumentului } from "./ceasuri";
 
-export type FiltruTermen = "depasit" | "aproape" | "deschise" | "fara_confirmare" | "toate";
+export type FiltruTermen = "depasit" | "aproape" | "deschise" | "la_semnat" | "fara_confirmare" | "toate";
 
 export type Filtre = { cauta?: string; termen?: FiltruTermen; compartimentId?: string; directie?: "intrare" | "iesire" };
 
-/** Condiția de vizibilitate pe compartimente. Entitatea e deja oprită de bază. */
-function conditiaVederii(v: Vedere): SQL | undefined {
-  if (v.fel === "compartimente" && v.ids !== "toate") return v.ids.length ? inArray(documente.compartimentId, v.ids) : sql`false`;
+const esteCerere = sql`exists (select 1 from petru.cereri c where c.document_id = ${documente.id})`;
+
+/** Condiția de vizibilitate pe compartimente și pe cereri. Entitatea e deja oprită de bază. */
+export function conditiaVederii(v: Vedere): SQL | undefined {
+  if (v.fel === "compartimente" && v.ids !== "toate") {
+    const peCompartimente = v.ids.length ? inArray(documente.compartimentId, v.ids) : sql`false`;
+    return v.cereri ? or(peCompartimente, esteCerere) : peCompartimente;
+  }
+  if (v.fel === "cereri") return esteCerere;
   if (v.fel === "nimic") return sql`false`;
   return undefined;
 }
@@ -37,6 +45,7 @@ export async function listaRegistrului(tx: Tranzactie, v: Vedere, f: Filtre, azi
   if (f.termen === "depasit") conditii.push(inArray(documente.stare, DESCHISE), sql`${documente.termen} < ${azi}`);
   if (f.termen === "aproape") conditii.push(inArray(documente.stare, DESCHISE), sql`${documente.termen} >= ${azi}`, sql`${documente.termen} <= ${limitaAproape}`);
   if (f.termen === "deschise") conditii.push(inArray(documente.stare, DESCHISE), eq(documente.directie, "intrare"));
+  if (f.termen === "la_semnat") conditii.push(eq(documente.stare, "la_semnat"), eq(documente.directie, "intrare"));
   if (f.termen === "fara_confirmare") conditii.push(eq(documente.directie, "iesire"), isNull(documente.confirmatLa));
 
   return tx
@@ -171,10 +180,13 @@ export async function aplicaImportul(tx: Tranzactie, importId: string, entitateI
       importId: i.id,
       actualizatLa: new Date(),
     };
+    let docId: string;
     if (existent) {
       const stare: Stare = existent.stare === "inregistrat" && c ? "repartizat" : existent.stare;
-      await tx.update(documente).set({ ...comune, stare }).where(eq(documente.id, existent.id));
-      idDupaCheie.set(`${r.an}/${r.numar}`, existent.id);
+      // Regula și termenul ținute în Petru (ceasul, cu prelungirea lui) nu se suprascriu din export.
+      const pastreaza = existent.termenCheie ? { termen: undefined, termenCheie: undefined, termenRecunoscut: undefined } : {};
+      await tx.update(documente).set({ ...comune, ...pastreaza, stare }).where(eq(documente.id, existent.id));
+      docId = existent.id;
       actualizate++;
     } else {
       const stare: Stare = intrare ? (c ? "repartizat" : "inregistrat") : "emis";
@@ -182,8 +194,15 @@ export async function aplicaImportul(tx: Tranzactie, importId: string, entitateI
         .insert(documente)
         .values({ ...comune, entitateId, an: r.an, numar: r.numar, sursa: "import", stare, expediatLa: intrare ? null : r.data })
         .returning({ id: documente.id });
-      idDupaCheie.set(`${r.an}/${r.numar}`, nou!.id);
+      docId = nou!.id;
       noi++;
+    }
+    idDupaCheie.set(`${r.an}/${r.numar}`, docId);
+    // Ceasul termenului pornește la data înregistrării; petițiile și cererile 544 recunoscute intră în registrele lor.
+    if (termenAles && !existent?.termenCheie) {
+      await pornesteCeasulDocumentului(tx, { entitateId, documentId: docId, regula: termenAles.termen.cheie, pornitLa: r.data, principal: true });
+      const fel = felulDupaTermen(termenAles.termen.cheie, termenAles.recunoscut);
+      if (fel) await tx.insert(cereri).values({ entitateId, documentId: docId, fel }).onConflictDoNothing({ target: cereri.documentId });
     }
   }
 
@@ -198,6 +217,7 @@ export async function aplicaImportul(tx: Tranzactie, importId: string, entitateI
       .limit(1);
     if (!intr) continue;
     await tx.update(documente).set({ raspunsLaId: intr.id }).where(eq(documente.id, idDupaCheie.get(`${r.an}/${r.numar}`)!));
+    await opresteCeasurile(tx, { documentId: intr.id, la: r.data, motiv: `răspuns nr. ${r.numar}/${r.an} (din import)` });
     if (!esteRezolvat(intr.stare)) {
       await tx.update(documente).set({ stare: "emis", actualizatLa: new Date() }).where(eq(documente.id, intr.id));
       await tx.insert(jurnal).values({ utilizatorId, actiune: "răspuns legat din import", entitate: "document", entitateId: intr.id, detalii: { iesire: `${r.numar}/${r.an}` } });
@@ -208,4 +228,32 @@ export async function aplicaImportul(tx: Tranzactie, importId: string, entitateI
   await tx.update(importuri).set({ noi, actualizate }).where(eq(importuri.id, i.id));
   await tx.insert(jurnal).values({ utilizatorId, actiune: "a aplicat importul registrului", entitate: "import", entitateId: i.id, detalii: { noi, actualizate, legate, fisier: i.numeFisier } });
   return { noi, actualizate, legate };
+}
+
+/**
+ * Ieșirea: răspunsul (sau adresa de redirecționare) a plecat. Numărul e cel dat de registrul oficial
+ * (număr nou, legat de intrare). Oprește ceasurile intrării. Starea intrării o schimbă cel care cheamă.
+ */
+export async function creeazaIesirea(
+  tx: Tranzactie,
+  a: { entitateId: string; utilizatorId: string; intrare: typeof documente.$inferSelect; numar: number; data: string; mod: "posta" | "email" | "ghiseu" | "platforma"; destinatar: string | null; tip?: string; motivOprire: string },
+) {
+  const d = a.intrare;
+  const an = Number(a.data.slice(0, 4));
+  const [ocupat] = await tx.select({ id: documente.id }).from(documente).where(and(eq(documente.an, an), eq(documente.numar, a.numar)));
+  if (ocupat) throw new Error(`Numărul ${a.numar}/${an} există deja în registru.`);
+  if (a.data < d.dataInregistrare.toISOString().slice(0, 10)) throw new Error("Data ieșirii e înainte de data intrării.");
+  const [iesire] = await tx
+    .insert(documente)
+    .values({
+      entitateId: a.entitateId, an, numar: a.numar, dataInregistrare: new Date(`${a.data}T12:00:00Z`), directie: "iesire", sursa: "petru",
+      tip: a.tip ?? `Răspuns la nr. ${d.numar}/${d.an}`, continut: `Răspuns la: ${d.continut}`.slice(0, 2000),
+      compartimentId: d.compartimentId, raspunsLaId: d.id, destinatarText: a.destinatar ?? d.emitentText,
+      modExpediere: a.mod, expediatLa: a.data, stare: "emis",
+    })
+    .returning({ id: documente.id });
+  await opresteCeasurile(tx, { documentId: d.id, la: a.data, motiv: a.motivOprire });
+  await tx.insert(jurnal).values({ utilizatorId: a.utilizatorId, actiune: "a înregistrat ieșirea", entitate: "document", entitateId: d.id, detalii: { iesire: `${a.numar}/${an}`, mod: a.mod } });
+  await tx.insert(jurnal).values({ utilizatorId: a.utilizatorId, actiune: "ieșire înregistrată", entitate: "document", entitateId: iesire!.id, detalii: { laNumar: `${d.numar}/${d.an}` } });
+  return { id: iesire!.id, an };
 }

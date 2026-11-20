@@ -3,6 +3,8 @@ import { cere } from "@/autentificare/utilizator";
 import { db } from "@/baza/db";
 import { inEntitate } from "@/baza/entitate";
 import { cifrele, listaRegistrului } from "@/baza/registratura";
+import { cifreleCererilor, deLaConducere } from "@/baza/cereri";
+import { dataRo as zi } from "@/componente/format";
 import { ETICHETE } from "@/domeniu/drumul-actului";
 import { aziInRomania, ETICHETE_TERMEN, stareaTermenului, vedereaRegistrului } from "@/domeniu/registratura";
 import { dataRo } from "@/componente/format";
@@ -12,9 +14,12 @@ export default async function Panou() {
   const vedere = vedereaRegistrului(u.acordari);
   const b = db();
   const azi = aziInRomania();
+  const vedeCererile = u.poate("cereri.gestioneaza") || u.poate("documente.vede_tot") || u.poate("documente.vede_compartiment");
   const date = b && vedere.fel !== "nimic"
     ? await inEntitate(b, u.entitateId, async (tx) => ({
         cifre: await cifrele(tx, vedere, azi),
+        cereri: vedeCererile ? await cifreleCererilor(tx, vedere, azi) : null,
+        conducere: u.poate("documente.semneaza") || u.poate("documente.contrasemneaza") ? await deLaConducere(tx, vedere) : null,
         urgente: [
           ...(await listaRegistrului(tx, vedere, { termen: "depasit", directie: "intrare" }, azi, 10)),
           ...(await listaRegistrului(tx, vedere, { termen: "aproape", directie: "intrare" }, azi, 10)),
@@ -33,6 +38,31 @@ export default async function Panou() {
             <Link href="/registratura?termen=aproape" className="card"><h3>{date.cifre.aproape}</h3><p className="slab">scad în următoarele 3 zile</p></Link>
             <Link href="/registratura?termen=fara_confirmare" className="card"><h3>{date.cifre.faraConfirmare}</h3><p className="slab">ieșiri fără confirmare de primire</p></Link>
           </div>
+          {date.conducere && (
+            <>
+              <h2>Așteaptă hotărârea dumneavoastră</h2>
+              <div className="grila">
+                {u.poate("documente.semneaza") && <Link href="/registratura?termen=la_semnat" className="card"><h3>{date.conducere.deSemnat}</h3><p className="slab">răspunsuri la semnat, fără semnătura conducătorului</p></Link>}
+                {u.poate("documente.contrasemneaza") && <Link href="/registratura?termen=la_semnat" className="card"><h3>{date.conducere.deContrasemnat}</h3><p className="slab">răspunsuri la semnat, fără contrasemnătura secretarului general</p></Link>}
+              </div>
+              {u.poate("documente.semneaza") && date.conducere.prelungiri.length > 0 && (
+                <>
+                  <p><strong>Prelungiri de termen propuse de compartimente:</strong></p>
+                  <ul>
+                    {date.conducere.prelungiri.map((x) => (
+                      <li key={x.docId}><Link href={`/registratura/${x.docId}`}>nr. {x.numar}/{x.an}</Link> — {x.continut} <span className="slab">(termen {zi(x.termen)}; motiv: {x.motiv})</span></li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </>
+          )}
+          {date.cereri && (
+            <div className="grila" style={{ marginTop: "1rem" }}>
+              <Link href="/cereri?fel=petitie" className="card"><h3>{date.cereri.petitie.deschise}</h3><p className="slab">petiții fără soluție{date.cereri.petitie.depasite > 0 && `, ${date.cereri.petitie.depasite} cu termen depășit`}</p></Link>
+              <Link href="/cereri?fel=informatii_publice" className="card"><h3>{date.cereri.informatii_publice.deschise}</h3><p className="slab">cereri 544 fără soluție{date.cereri.informatii_publice.depasite > 0 && `, ${date.cereri.informatii_publice.depasite} cu termen depășit`}</p></Link>
+            </div>
+          )}
           <h2>De rezolvat întâi</h2>
           {date.urgente.length === 0 ? <p className="slab">Niciun termen depășit sau apropiat.</p> : (
             <div className="tabel-invelis">

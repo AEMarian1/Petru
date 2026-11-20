@@ -1,6 +1,6 @@
 # Birourile primăriei
 
-Lista dată de autor la 19.11.2026. Serviciul Domeniul public face parte din primărie. Se completează pe măsură ce autorul descrie fiecare birou: numai funcții, fără nume și fără date ale cetățenilor.
+Lista dată de autor la 19.11.2026. Biroul trecut inițial „Administrativ – Consiliul local” se numește **Administrație publică** (răspunsul autorului, 20.11.2026). Serviciul Domeniul public face parte din primărie. Se completează pe măsură ce autorul descrie fiecare birou: numai funcții, fără nume și fără date ale cetățenilor.
 
 | Biroul | Ce intră | Ce iese (și cine semnează) | Cu ce lucrează azi | Ce îl doare |
 |---|---|---|---|---|
@@ -22,7 +22,7 @@ Lista dată de autor la 19.11.2026. Serviciul Domeniul public face parte din pri
 | Asociațiile de proprietari | | | | |
 | Patrimoniul | | | | |
 | Serviciul Domeniul public | | | | |
-| Administrativ – Consiliul local | | | | |
+| Administrație publică (Consiliul local) | cererile de informații publice (Legea 544/2001): biroul e responsabilul 544; consiliul local | | | |
 | Executări silite | | | | |
 | Poliția locală | | | | |
 

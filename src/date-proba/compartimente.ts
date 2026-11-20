@@ -18,7 +18,7 @@ export const COMPARTIMENTE: Compartiment[] = [
   { cheie: "viceprimar", nume: "Viceprimarul", ce: "Atribuțiile delegate de primar", program: PROGRAM_OBISNUIT, interior: "101" },
   { cheie: "secretar", nume: "Secretarul general", ce: "Legalitatea actelor, contrasemnarea, registrele, Monitorul Oficial Local", program: PROGRAM_OBISNUIT, interior: "102" },
   { cheie: "registratura", nume: "Registratura", ce: "Înregistrarea și repartizarea documentelor", program: PROGRAM_OBISNUIT, interior: "103" },
-  { cheie: "administratie", nume: "Administrativ – Consiliul local", ce: "Ședințele consiliului local, proiectele de hotărâre, materialele pentru consilieri", program: PROGRAM_OBISNUIT, interior: "104" },
+  { cheie: "administratie", nume: "Administrație publică (Consiliul local)", ce: "Ședințele consiliului local, proiectele de hotărâre, materialele pentru consilieri; informațiile de interes public (Legea 544/2001)", program: PROGRAM_OBISNUIT, interior: "104" },
   { cheie: "agricol", nume: "Registrul agricol", ce: "Registrul agricol, adeverințe, atestate de producător, oferte de vânzare a terenurilor", program: PROGRAM_OBISNUIT, interior: "105" },
   { cheie: "taxe", nume: "Taxe și impozite (persoane fizice și juridice)", ce: "Declarații fiscale, certificate fiscale, scutiri, restituiri", program: PROGRAM_OBISNUIT, interior: "106" },
   { cheie: "casierie", nume: "Casieria", ce: "Încasarea taxelor și impozitelor, chitanțe", program: PROGRAM_OBISNUIT, interior: "107" },

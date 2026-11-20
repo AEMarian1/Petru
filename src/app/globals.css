@@ -110,3 +110,10 @@ a.card:hover { border-color: var(--accent); }
 .fisa dd { margin: 0; }
 @media (max-width: 600px) { .fisa { grid-template-columns: 1fr; } .fisa dd { margin-bottom: 0.5rem; } }
 .pasi { display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: flex-start; }
+.card-ales { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.rand-formular > div { min-width: 0; max-width: 100%; }
+.rand-formular input, .rand-formular select { max-width: 100%; }
+@media (max-width: 40rem) {
+  .rand-formular > div { flex: 1 1 100%; }
+  .rand-formular select { width: 100%; }
+}

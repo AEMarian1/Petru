@@ -20,6 +20,12 @@ export const sursaDocument = petru.enum("sursa_document", ["petru", "import"]);
 export const canalIntrare = petru.enum("canal_intrare", ["ghiseu", "posta", "email", "platforma"]);
 export const modExpediere = petru.enum("mod_expediere", ["posta", "email", "ghiseu", "platforma"]);
 export const stareImport = petru.enum("stare_import", ["verificat", "aplicat", "renuntat"]);
+export const felCerere = petru.enum("fel_cerere", ["petitie", "informatii_publice"]);
+export const solutieCerere = petru.enum("solutie_cerere", [
+  "favorabila", "nefavorabila", "comunicata", "comunicata_partial", "respinsa_exceptata", "respinsa_inexistenta", "redirectionata", "clasata", "conexata",
+]);
+export const tipSolicitant = petru.enum("tip_solicitant", ["fizica", "juridica", "nespecificat"]);
+export const solutieReclamatie = petru.enum("solutie_reclamatie", ["admisa", "respinsa"]);
 
 /** Setările instituției: numele, localitatea, județul. Un singur rând. În cod nu apare nicio localitate. */
 export const institutie = petru.table("institutie", {
@@ -165,6 +171,11 @@ export const documente = petru.table(
     modExpediere: modExpediere("mod_expediere"),
     expediatLa: date("expediat_la"),
     confirmatLa: date("confirmat_la"),
+    /** Semnătura conducătorului și contrasemnătura secretarului general pe răspuns (la semnat). */
+    semnatLa: date("semnat_la"),
+    semnatDe: uuid("semnat_de").references(() => utilizatori.id),
+    contrasemnatLa: date("contrasemnat_la"),
+    contrasemnatDe: uuid("contrasemnat_de").references(() => utilizatori.id),
     importId: uuid("import_id").references(() => importuri.id),
     creatLa: creatLa(),
     actualizatLa: timestamp("actualizat_la", { withTimezone: true }).notNull().defaultNow(),
@@ -188,6 +199,62 @@ export const importuri = petru.table("importuri", {
   actualizate: integer("actualizate").notNull().default(0),
   aplicatLa: timestamp("aplicat_la", { withTimezone: true }),
   creatLa: creatLa(),
+});
+
+/**
+ * Ceasul termenelor: termenul legal al unui document, după regula tipului lui (src/domeniu/termene.ts).
+ * Un document poate avea mai multe ceasuri (răspunsul la cererea 544 și, apoi, la reclamația
+ * administrativă). Ceasul răspunsului dă și `documente.termen`, folosit de liste și de panou.
+ */
+export const ceasuri = petru.table(
+  "ceasuri",
+  {
+    id: id(),
+    entitateId: uuid("entitate_id").notNull().references(() => entitati.id),
+    documentId: uuid("document_id").notNull().references(() => documente.id),
+    regula: text("regula").notNull(),
+    pornitLa: date("pornit_la").notNull(),
+    termenInitial: date("termen_initial").notNull(),
+    termen: date("termen").notNull(),
+    /** Propunerea compartimentului; prelungirea o hotărăște conducătorul instituției. */
+    prelungirePropusaLa: date("prelungire_propusa_la"),
+    prelungirePropusaDe: uuid("prelungire_propusa_de").references(() => utilizatori.id),
+    prelungitLa: date("prelungit_la"),
+    prelungitDe: uuid("prelungit_de").references(() => utilizatori.id),
+    prelungireMotiv: text("prelungire_motiv"),
+    /** Cum a fost înștiințat solicitantul despre prelungire (de pildă, numărul adresei de ieșire). */
+    instiintare: text("instiintare"),
+    opritLa: date("oprit_la"),
+    motivOprire: text("motiv_oprire"),
+    creatLa: creatLa(),
+    actualizatLa: timestamp("actualizat_la", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [unique("ceasuri_document_regula").on(t.documentId, t.regula)],
+);
+
+/**
+ * Registrele petițiilor (OG 27/2002) și ale cererilor de informații publice (Legea 544/2001).
+ * O cerere e un document din registru; aici stau felul ei, soluția, redirecționarea, conexarea și
+ * reclamația administrativă. Rapoartele se fac din aceste rânduri.
+ */
+export const cereri = petru.table("cereri", {
+  id: id(),
+  entitateId: uuid("entitate_id").notNull().references(() => entitati.id),
+  documentId: uuid("document_id").notNull().unique().references(() => documente.id),
+  fel: felCerere("fel").notNull(),
+  solicitant: tipSolicitant("solicitant").notNull().default("nespecificat"),
+  solutie: solutieCerere("solutie"),
+  solutieLa: date("solutie_la"),
+  solutieMotiv: text("solutie_motiv"),
+  redirectionatCatre: text("redirectionat_catre"),
+  conexatLaId: uuid("conexat_la_id").references((): AnyPgColumn => cereri.id),
+  reclamatieLa: date("reclamatie_la"),
+  reclamatieNumar: text("reclamatie_numar"),
+  reclamatieSolutie: solutieReclamatie("reclamatie_solutie"),
+  reclamatieSolutieLa: date("reclamatie_solutie_la"),
+  plangereInstanta: boolean("plangere_instanta").notNull().default(false),
+  creatLa: creatLa(),
+  actualizatLa: timestamp("actualizat_la", { withTimezone: true }).notNull().defaultNow(),
 });
 
 /** Jurnalul: se poate doar adăuga. Modificarea și ștergerea sunt blocate în bază (migrarea 0001). */

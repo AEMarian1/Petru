@@ -4,6 +4,7 @@
  */
 export const GRUPE = {
   documente: "Documente și registratură",
+  cereri: "Petiții și informații publice",
   publicare: "Publicare",
   consiliu: "Consiliul local",
   dispozitii: "Dispozițiile primarului",
@@ -17,7 +18,9 @@ export const PERMISIUNI = {
   "documente.vede_compartiment": { grupa: "documente", nume: "Vede documentele compartimentului său" },
   "documente.vede_tot": { grupa: "documente", nume: "Vede toate documentele entității" },
   "documente.rezolva": { grupa: "documente", nume: "Lucrează și redactează răspunsul" },
-  "documente.semneaza": { grupa: "documente", nume: "Semnează actele" },
+  "documente.semneaza": { grupa: "documente", nume: "Semnează actele și hotărăște prelungirea termenelor (conducătorul)" },
+  "documente.contrasemneaza": { grupa: "documente", nume: "Contrasemnează răspunsurile (secretarul general)" },
+  "cereri.gestioneaza": { grupa: "cereri", nume: "Ține registrele petițiilor și ale cererilor 544, cu rapoartele" },
   "publicare.aproba": { grupa: "publicare", nume: "Aprobă publicarea (poarta de publicare)" },
   "consiliu.gestioneaza": { grupa: "consiliu", nume: "Pregătește ședințele și registrele" },
   "consiliu.vede": { grupa: "consiliu", nume: "Vede materialele ședințelor" },

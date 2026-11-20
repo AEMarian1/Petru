@@ -17,10 +17,11 @@ Unele drepturi sunt **pe compartiment**: un funcționar cu rolul dat pentru Urba
 | Rolul | Pe scurt |
 |---|---|
 | Administratorul aplicației | conturile, rolurile, setările, jurnalul |
-| Primarul în funcție | vede tot, semnează, aprobă publicarea |
+| Primarul în funcție | vede tot, semnează răspunsurile, hotărăște prelungirea termenelor, aprobă publicarea |
 | Viceprimarul | atribuțiile delegate |
-| Secretarul general | repartizează, contrasemnează, consiliul local, aprobă publicarea |
+| Secretarul general | repartizează, contrasemnează răspunsurile și dispozițiile, consiliul local, aprobă publicarea, ține registrele cererilor |
 | Registratura | înregistrează și repartizează; nu deschide răspunsurile compartimentelor |
+| Responsabilul cu petițiile și informațiile publice | ține registrele petițiilor și ale cererilor 544 și rapoartele; vede numai documentele care sunt cereri |
 | Funcționarul de compartiment | lucrează documentele compartimentului său |
 | Consilierul local | vede materialele ședințelor |
 

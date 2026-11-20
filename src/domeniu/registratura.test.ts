@@ -58,6 +58,10 @@ describe("ce vede fiecare din registru", () => {
   it("registratura vede numai fișa de înregistrare", () => {
     expect(vedereaRegistrului([{ permisiuni: ["documente.inregistreaza", "documente.repartizeaza"], compartimentId: null }])).toEqual({ fel: "fisa" });
   });
+  it("responsabilul cu cererile vede numai cererile", () => {
+    expect(vedereaRegistrului([{ permisiuni: ["cereri.gestioneaza"], compartimentId: null }])).toEqual({ fel: "cereri" });
+    expect(vedereaRegistrului([{ permisiuni: ["documente.vede_compartiment", "cereri.gestioneaza"], compartimentId: "u" }])).toEqual({ fel: "compartimente", ids: ["u"], cereri: true });
+  });
   it("fără drepturi pe documente, nimic", () => {
     expect(vedereaRegistrului([{ permisiuni: ["consiliu.vede"], compartimentId: null }])).toEqual({ fel: "nimic" });
   });

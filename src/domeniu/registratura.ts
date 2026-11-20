@@ -7,6 +7,9 @@ import { poateTrece, type Stare } from "./drumul-actului";
 import type { Permisiune } from "./permisiuni";
 import { adaugaZile, termenul, type TermenLegal } from "./termene";
 import { normalizeaza } from "./import-registru";
+import { ZILE_AVERTIZARE, zileIntre } from "./ceas";
+
+export { ZILE_AVERTIZARE, zileIntre };
 
 /** Termenul implicit, când tipul documentului nu se recunoaște: 30 de zile, ca la petiții. */
 export const CHEIE_IMPLICITA = "petitie";
@@ -45,17 +48,10 @@ export const ETICHETE_TERMEN: Record<StareTermen, string> = {
   fara_termen: "Fără termen",
 };
 
-/** Câte zile înainte de termen se semnalează documentul. */
-export const ZILE_AVERTIZARE = 3;
-
 const REZOLVATE: readonly Stare[] = ["emis", "publicat", "arhivat"];
 
 export function esteRezolvat(stare: Stare): boolean {
   return REZOLVATE.includes(stare);
-}
-
-export function zileIntre(de: string, pana: string): number {
-  return Math.round((Date.parse(`${pana}T12:00:00Z`) - Date.parse(`${de}T12:00:00Z`)) / 86_400_000);
 }
 
 /** Starea termenului față de ziua de azi (AAAA-LL-ZZ). */
@@ -83,7 +79,7 @@ export const PASI: Record<Pas, { nume: string; facut: string; spre: Stare; drept
   repartizeaza: { nume: "Repartizează", facut: "a repartizat", spre: "repartizat", drept: ["documente.repartizeaza"], peCompartiment: false },
   preia: { nume: "Preia în lucru", facut: "a preluat în lucru", spre: "in_lucru", drept: ["documente.rezolva"], peCompartiment: true },
   la_semnat: { nume: "Răspunsul e la semnat", facut: "a dat răspunsul la semnat", spre: "la_semnat", drept: ["documente.rezolva"], peCompartiment: true },
-  inapoi_in_lucru: { nume: "Înapoi în lucru", facut: "a întors în lucru", spre: "in_lucru", drept: ["documente.rezolva", "documente.semneaza"], peCompartiment: true },
+  inapoi_in_lucru: { nume: "Înapoi în lucru", facut: "a întors în lucru", spre: "in_lucru", drept: ["documente.rezolva", "documente.semneaza", "documente.contrasemneaza"], peCompartiment: true },
   iesire: { nume: "Răspunsul a plecat (ieșirea)", facut: "a înregistrat ieșirea", spre: "emis", drept: ["documente.inregistreaza", "documente.rezolva"], peCompartiment: true },
   claseaza: { nume: "Clasează fără răspuns", facut: "a clasat fără răspuns", spre: "arhivat", drept: ["documente.rezolva"], peCompartiment: true },
 };
@@ -115,16 +111,24 @@ export function esteModExpediere(x: string): x is ModExpediere {
 /**
  * Ce vede utilizatorul din registru:
  * - „tot”: conducerea (dreptul de a vedea toate documentele entității);
- * - „compartimente”: biroul, numai documentele compartimentelor sale;
- * - „fisa”: registratura, numai fișa de înregistrare a tuturor documentelor, fără mersul din birou.
+ * - „compartimente”: biroul, numai documentele compartimentelor sale (și cererile, dacă ține registrele lor);
+ * - „fisa”: registratura, numai fișa de înregistrare a tuturor documentelor, fără mersul din birou;
+ * - „cereri”: responsabilul cu petițiile și informațiile publice, numai documentele care sunt cereri.
  */
-export type Vedere = { fel: "tot" } | { fel: "compartimente"; ids: string[] | "toate" } | { fel: "fisa" } | { fel: "nimic" };
+export type Vedere =
+  | { fel: "tot" }
+  | { fel: "compartimente"; ids: string[] | "toate"; cereri?: true }
+  | { fel: "fisa" }
+  | { fel: "cereri" }
+  | { fel: "nimic" };
 
 export function vedereaRegistrului(acordari: readonly { permisiuni: readonly string[]; compartimentId: string | null }[]): Vedere {
   const are = (p: Permisiune) => acordari.some((a) => a.permisiuni.includes(p));
   if (are("documente.vede_tot")) return { fel: "tot" };
+  const siCereri = are("cereri.gestioneaza") ? ({ cereri: true } as const) : {};
   const pe = acordari.filter((a) => a.permisiuni.includes("documente.vede_compartiment"));
-  if (pe.length) return pe.some((a) => a.compartimentId === null) ? { fel: "compartimente", ids: "toate" } : { fel: "compartimente", ids: [...new Set(pe.map((a) => a.compartimentId!))] };
+  if (pe.length) return pe.some((a) => a.compartimentId === null) ? { fel: "compartimente", ids: "toate" } : { fel: "compartimente", ids: [...new Set(pe.map((a) => a.compartimentId!))], ...siCereri };
   if (are("documente.inregistreaza") || are("documente.repartizeaza")) return { fel: "fisa" };
+  if (are("cereri.gestioneaza")) return { fel: "cereri" };
   return { fel: "nimic" };
 }
